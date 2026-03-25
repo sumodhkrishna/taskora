@@ -14,68 +14,40 @@ import {
   reopenTodo,
   updateTodo,
 } from "../api/todoApi";
-import type { CreateTodoRequest, TodoDto, TodoPriority, UpdateTodoRequest } from "../types/todo";
+import type {
+  CreateTodoRequest,
+  TodoDto,
+  TodoPriority,
+  TodoStatusFilter,
+  UpdateTodoRequest,
+} from "../types/todo";
 import styles from "./HomePage.module.css";
 
 function toDateInputValue(value: string | null): string {
-  if (!value) {
-    return "";
-  }
-
-  const normalized = value.slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
-    return "";
-  }
-
-  return normalized;
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
 }
 
 function toUtcDateString(value: string): string | null {
-  if (!value) {
-    return null;
-  }
-
+  if (!value) return null;
   return new Date(`${value}T00:00:00.000Z`).toISOString();
-}
-
-function formatDateLabel(value: string | null): string {
-  if (!value) {
-    return "";
-  }
-
-  const normalized = value.slice(0, 10);
-  const [year, month, day] = normalized.split("-").map(Number);
-
-  if (!year || !month || !day) {
-    return "";
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    month: "numeric",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(Date.UTC(year, month - 1, day)));
 }
 
 function getPriorityLabel(priority: number | string): string {
   const normalized = Number(priority);
-
   if (normalized === 1) return "Low";
   if (normalized === 2) return "Medium";
   if (normalized === 3) return "High";
-
   return "Unknown";
 }
 
-function getPriorityClass(priority: number | string): string {
-  const normalized = Number(priority);
-
-  if (normalized === 1) return styles.priorityLow;
-  if (normalized === 2) return styles.priorityMedium;
-  if (normalized === 3) return styles.priorityHigh;
-
-  return "";
+function mapStatusFilterToApi(status: TodoStatusFilter): string | undefined {
+  if (status === "all") return undefined;
+  if (status === "pending") return "Pending";
+  if (status === "completed") return "Completed";
+  return undefined;
 }
 
 export function HomePage() {
@@ -92,19 +64,41 @@ export function HomePage() {
   const [priority, setPriority] = useState<TodoPriority>(2);
   const [toBeCompletedByDate, setToBeCompletedByDate] = useState("");
 
+  const [statusFilter, setStatusFilter] = useState<TodoStatusFilter>("all");
+  const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [searchFilter, setSearchFilter] = useState("");
+  const [dueBeforeFilter, setDueBeforeFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
+
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
   const userName = getStoredUserName();
 
   useEffect(() => {
     void loadTodos();
-  }, []);
+  }, [statusFilter, priorityFilter, searchFilter, dueBeforeFilter, page, pageSize]);
 
   async function loadTodos() {
     setIsLoading(true);
     setErrorMessage("");
 
     try {
-      const data = await getTodos();
-      setTodos(data);
+      const result = await getTodos({
+        status: mapStatusFilterToApi(statusFilter),
+        priority: priorityFilter === "all" ? undefined : Number(priorityFilter),
+        search: searchFilter.trim() || undefined,
+        dueBefore: dueBeforeFilter
+          ? new Date(`${dueBeforeFilter}T23:59:59.999Z`).toISOString()
+          : undefined,
+        page,
+        pageSize,
+      });
+
+      setTodos(result.items ?? []);
+      setTotalCount(Number(result.totalCount ?? 0));
+      setTotalPages(Math.max(1, Number(result.totalPages ?? 1)));
     } catch (error) {
       console.error(error);
       setErrorMessage("Unable to load your tasks.");
@@ -120,6 +114,14 @@ export function HomePage() {
     setPriority(2);
     setToBeCompletedByDate("");
     setErrorMessage("");
+  }
+
+  function resetFilters() {
+    setStatusFilter("all");
+    setPriorityFilter("all");
+    setSearchFilter("");
+    setDueBeforeFilter("");
+    setPage(1);
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -152,16 +154,13 @@ export function HomePage() {
       };
 
       if (editingTodoId !== null) {
-        const updated = await updateTodo(editingTodoId, payload);
-        setTodos((current) =>
-          current.map((todo) => (todo.id === editingTodoId ? updated : todo))
-        );
+        await updateTodo(editingTodoId, payload);
       } else {
-        const created = await createTodo(payload);
-        setTodos((current) => [created, ...current]);
+        await createTodo(payload);
       }
 
       resetForm();
+      await loadTodos();
     } catch (error) {
       console.error(error);
       setErrorMessage("Unable to save the task.");
@@ -181,13 +180,13 @@ export function HomePage() {
 
   async function handleToggleComplete(todo: TodoDto) {
     try {
-      const updated = todo.isCompleted
-        ? await reopenTodo(todo.id)
-        : await completeTodo(todo.id);
+      if (todo.isCompleted) {
+        await reopenTodo(todo.id);
+      } else {
+        await completeTodo(todo.id);
+      }
 
-      setTodos((current) =>
-        current.map((item) => (item.id === todo.id ? updated : item))
-      );
+      await loadTodos();
     } catch (error) {
       console.error(error);
       setErrorMessage("Unable to update task status.");
@@ -197,10 +196,16 @@ export function HomePage() {
   async function handleDelete(id: number | string) {
     try {
       await deleteTodo(id);
-      setTodos((current) => current.filter((todo) => todo.id !== id));
 
       if (editingTodoId === id) {
         resetForm();
+      }
+
+      const isLastItemOnPage = todos.length === 1 && page > 1;
+      if (isLastItemOnPage) {
+        setPage((current) => current - 1);
+      } else {
+        await loadTodos();
       }
     } catch (error) {
       console.error(error);
@@ -223,27 +228,15 @@ export function HomePage() {
     }
   }
 
-  const totalCount = todos.length;
-  const completedCount = todos.filter((todo) => todo.isCompleted).length;
-  const pendingCount = totalCount - completedCount;
+  const completedOnPage = useMemo(
+    () => todos.filter((todo) => todo.isCompleted).length,
+    [todos]
+  );
 
-  const sortedTodos = useMemo(() => {
-    return [...todos].sort((a, b) => {
-      if (a.isCompleted !== b.isCompleted) {
-        return a.isCompleted ? 1 : -1;
-      }
+  const pendingOnPage = todos.length - completedOnPage;
 
-      const priorityDiff = Number(b.priority) - Number(a.priority);
-      if (priorityDiff !== 0) {
-        return priorityDiff;
-      }
-
-      const aDate = a.toBeCompletedByDateUtc ? new Date(a.toBeCompletedByDateUtc).getTime() : Infinity;
-      const bDate = b.toBeCompletedByDateUtc ? new Date(b.toBeCompletedByDateUtc).getTime() : Infinity;
-
-      return aDate - bDate;
-    });
-  }, [todos]);
+  const canGoPrevious = page > 1;
+  const canGoNext = page < totalPages;
 
   return (
     <div className={styles.page}>
@@ -273,18 +266,18 @@ export function HomePage() {
 
         <section className={styles.summaryGrid}>
           <div className={styles.summaryCard}>
-            <span className={styles.summaryLabel}>Total Tasks</span>
+            <span className={styles.summaryLabel}>Filtered Total</span>
             <strong className={styles.summaryValue}>{totalCount}</strong>
           </div>
 
           <div className={styles.summaryCard}>
-            <span className={styles.summaryLabel}>Pending</span>
-            <strong className={styles.summaryValue}>{pendingCount}</strong>
+            <span className={styles.summaryLabel}>Pending On Page</span>
+            <strong className={styles.summaryValue}>{pendingOnPage}</strong>
           </div>
 
           <div className={styles.summaryCard}>
-            <span className={styles.summaryLabel}>Completed</span>
-            <strong className={styles.summaryValue}>{completedCount}</strong>
+            <span className={styles.summaryLabel}>Completed On Page</span>
+            <strong className={styles.summaryValue}>{completedOnPage}</strong>
           </div>
         </section>
 
@@ -370,8 +363,8 @@ export function HomePage() {
                     ? "Saving..."
                     : "Creating..."
                   : editingTodoId !== null
-                    ? "Save Changes"
-                    : "Create Task"}
+                  ? "Save Changes"
+                  : "Create Task"}
               </button>
             </form>
           </div>
@@ -379,82 +372,171 @@ export function HomePage() {
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
               <h2 className={styles.panelTitle}>All tasks</h2>
-              <button type="button" className={styles.textButton} onClick={() => void loadTodos()}>
-                Refresh
+              <button type="button" className={styles.textButton} onClick={resetFilters}>
+                Reset filters
               </button>
+            </div>
+
+            <div className={styles.filterBar}>
+              <input
+                type="text"
+                className={styles.filterInput}
+                placeholder="Search tasks"
+                value={searchFilter}
+                onChange={(event) => {
+                  setSearchFilter(event.target.value);
+                  setPage(1);
+                }}
+              />
+
+              <select
+                className={styles.filterSelect}
+                value={statusFilter}
+                onChange={(event) => {
+                  setStatusFilter(event.target.value as TodoStatusFilter);
+                  setPage(1);
+                }}
+              >
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+              </select>
+
+              <select
+                className={styles.filterSelect}
+                value={priorityFilter}
+                onChange={(event) => {
+                  setPriorityFilter(event.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="all">All Priorities</option>
+                <option value="1">Low</option>
+                <option value="2">Medium</option>
+                <option value="3">High</option>
+              </select>
+
+              <input
+                type="date"
+                className={styles.filterInput}
+                value={dueBeforeFilter}
+                onChange={(event) => {
+                  setDueBeforeFilter(event.target.value);
+                  setPage(1);
+                }}
+              />
+
+              <select
+                className={styles.filterSelect}
+                value={pageSize}
+                onChange={(event) => {
+                  setPageSize(Number(event.target.value));
+                  setPage(1);
+                }}
+              >
+                <option value={6}>6 / page</option>
+                <option value={9}>9 / page</option>
+                <option value={12}>12 / page</option>
+              </select>
             </div>
 
             {isLoading ? (
               <div className={styles.emptyState}>Loading tasks...</div>
-            ) : sortedTodos.length === 0 ? (
+            ) : todos.length === 0 ? (
               <div className={styles.emptyState}>
-                No tasks yet. Create your first one.
+                No tasks matched the current filters.
               </div>
             ) : (
-              <div className={styles.todoList}>
-                {sortedTodos.map((todo) => (
-                  <article
-                    key={String(todo.id)}
-                    className={`${styles.todoCard} ${todo.isCompleted ? styles.todoCardCompleted : ""}`}
-                  >
-                    <div className={styles.todoTop}>
-                      <div>
-                        <h3 className={styles.todoTitle}>{todo.title}</h3>
-                        <div className={styles.metaRow}>
-                          <span
-                            className={`${styles.priorityBadge} ${getPriorityClass(todo.priority)}`}
+              <>
+                <div className={styles.todoList}>
+                  {todos.map((todo) => (
+                    <article
+                      key={String(todo.id)}
+                      className={`${styles.todoCard} ${todo.isCompleted ? styles.todoCardCompleted : ""}`}
+                    >
+                      <div className={styles.todoTop}>
+                        <div>
+                          <h3 className={styles.todoTitle}>{todo.title}</h3>
+                          <div className={styles.metaRow}>
+                            <span className={styles.priorityBadge}>
+                              {getPriorityLabel(todo.priority)}
+                            </span>
+                            <span className={styles.metaText}>
+                              {todo.toBeCompletedByDateUtc
+                                ? `Due ${new Date(todo.toBeCompletedByDateUtc).toLocaleDateString()}`
+                                : "No due date"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          className={styles.statusButton}
+                          onClick={() => void handleToggleComplete(todo)}
+                        >
+                          {todo.isCompleted ? "Reopen" : "Complete"}
+                        </button>
+                      </div>
+
+                      {todo.description && (
+                        <p className={styles.todoDescription}>{todo.description}</p>
+                      )}
+
+                      <div className={styles.todoFooter}>
+                        <span className={styles.metaText}>
+                          {todo.isCompleted && todo.completedAtUtc
+                            ? `Completed ${new Date(todo.completedAtUtc).toLocaleDateString()}`
+                            : `Created ${new Date(todo.createdAtUtc).toLocaleDateString()}`}
+                        </span>
+
+                        <div className={styles.todoActions}>
+                          <button
+                            type="button"
+                            className={styles.secondaryButton}
+                            onClick={() => handleEdit(todo)}
                           >
-                            {getPriorityLabel(todo.priority)}
-                          </span>
-                          <span className={styles.metaText}>
-                            {todo.toBeCompletedByDateUtc
-                              ? `Due ${formatDateLabel(todo.toBeCompletedByDateUtc)}`
-                              : "No due date"}
-                          </span>
+                            Edit
+                          </button>
+
+                          <button
+                            type="button"
+                            className={styles.dangerButton}
+                            onClick={() => void handleDelete(todo.id)}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
+                    </article>
+                  ))}
+                </div>
 
-                      <button
-                        type="button"
-                        className={styles.statusButton}
-                        onClick={() => void handleToggleComplete(todo)}
-                      >
-                        {todo.isCompleted ? "Reopen" : "Complete"}
-                      </button>
-                    </div>
+                <div className={styles.paginationBar}>
+                  <div className={styles.paginationInfo}>
+                    Page {page} of {totalPages}
+                  </div>
 
-                    {todo.description && (
-                      <p className={styles.todoDescription}>{todo.description}</p>
-                    )}
+                  <div className={styles.paginationActions}>
+                    <button
+                      type="button"
+                      className={styles.secondaryButton}
+                      disabled={!canGoPrevious}
+                      onClick={() => setPage((current) => current - 1)}
+                    >
+                      Previous
+                    </button>
 
-                    <div className={styles.todoFooter}>
-                      <span className={styles.metaText}>
-                        {todo.isCompleted && todo.completedAtUtc
-                          ? `Completed ${new Date(todo.completedAtUtc).toLocaleDateString()}`
-                          : `Created ${new Date(todo.createdAtUtc).toLocaleDateString()}`}
-                      </span>
-
-                      <div className={styles.todoActions}>
-                        <button
-                          type="button"
-                          className={styles.secondaryButton}
-                          onClick={() => handleEdit(todo)}
-                        >
-                          Edit
-                        </button>
-
-                        <button
-                          type="button"
-                          className={styles.dangerButton}
-                          onClick={() => void handleDelete(todo.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
+                    <button
+                      type="button"
+                      className={styles.secondaryButton}
+                      disabled={!canGoNext}
+                      onClick={() => setPage((current) => current + 1)}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </section>

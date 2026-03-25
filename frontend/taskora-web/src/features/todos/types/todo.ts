@@ -1,4 +1,5 @@
 export type TodoPriority = 1 | 2 | 3;
+export type TodoStatusFilter = "all" | "pending" | "completed";
 
 export interface TodoDto {
   id: number | string;
@@ -24,4 +25,21 @@ export interface UpdateTodoRequest {
   description?: string | null;
   priority?: TodoPriority;
   toBeCompletedByDateUtc?: string | null;
+}
+
+export interface TodoListQuery {
+  status?: string;
+  priority?: number;
+  search?: string;
+  dueBefore?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface PagedResultDto<T> {
+  items: T[];
+  page: number | string;
+  pageSize: number | string;
+  totalCount: number | string;
+  totalPages: number | string;
 }

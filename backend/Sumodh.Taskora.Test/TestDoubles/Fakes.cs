@@ -91,6 +91,11 @@ internal sealed class FakeTodoRepository : ITodoRepository
     {
         RemovedTodo = todoItem;
     }
+
+    public Task<(List<TodoItem> Items, int TotalCount)> GetPagedForUserAsync(int userId, bool? isCompleted, int? priority, string? search, DateTime? dueBefore, int page, int pageSize, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 internal sealed class FakeCurrentUserService : ICurrentUserService

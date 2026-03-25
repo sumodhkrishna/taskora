@@ -57,7 +57,7 @@ namespace Sumodh.Taskora
 
                 options.AddFixedWindowLimiter("AuthSensitivePolicy", policy =>
                 {
-                    policy.PermitLimit = 5;
+                    policy.PermitLimit = 50;
                     policy.Window = TimeSpan.FromMinutes(1);
                     policy.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
                     policy.QueueLimit = 0;
@@ -65,7 +65,7 @@ namespace Sumodh.Taskora
 
                 options.AddFixedWindowLimiter("AuthSessionPolicy", policy =>
                 {
-                    policy.PermitLimit = 15;
+                    policy.PermitLimit = 150;
                     policy.Window = TimeSpan.FromMinutes(1);
                     policy.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
                     policy.QueueLimit = 0;

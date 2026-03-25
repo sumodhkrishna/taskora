@@ -1,8 +1,26 @@
 import { apiClient } from "../../../services/apiClient";
-import type { CreateTodoRequest, TodoDto, UpdateTodoRequest } from "../types/todo";
+import type {
+  CreateTodoRequest,
+  PagedResultDto,
+  TodoDto,
+  TodoListQuery,
+  UpdateTodoRequest,
+} from "../types/todo";
 
-export async function getTodos(): Promise<TodoDto[]> {
-  const response = await apiClient.get<TodoDto[]>("/api/Todos");
+export async function getTodos(
+  query: TodoListQuery
+): Promise<PagedResultDto<TodoDto>> {
+  const response = await apiClient.get<PagedResultDto<TodoDto>>("/api/Todos", {
+    params: {
+      Status: query.status,
+      Priority: query.priority,
+      Search: query.search,
+      DueBefore: query.dueBefore,
+      Page: query.page,
+      PageSize: query.pageSize,
+    },
+  });
+
   return response.data;
 }
 

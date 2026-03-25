@@ -50,7 +50,51 @@ namespace Sumodh.Taskora.Infra.Persistance.Repositories
         {
             _dbContext.TodoItems.Remove(todoItem);
         }
+        public async Task<(List<TodoItem> Items, int TotalCount)> GetPagedForUserAsync(int userId,bool? isCompleted,int? priority,string? search,DateTime? dueBefore,int page,int pageSize,CancellationToken cancellationToken)
+        {
+            IQueryable<TodoItem> query = _dbContext.TodoItems
+                .AsNoTracking()
+                .Where(x => x.UserId == userId);
 
+            if (isCompleted.HasValue)
+            {
+                query = query.Where(x => x.IsCompleted == isCompleted.Value);
+            }
+
+            if (priority.HasValue)
+            {
+                query = query.Where(x => (int)x.Priority == priority.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim();
+
+                query = query.Where(x =>
+                    x.Title.Contains(term) ||
+                    (x.Description != null && x.Description.Contains(term)));
+            }
+
+            if (dueBefore.HasValue)
+            {
+                query = query.Where(x =>
+                    x.ToBeCompletedByDateUtc.HasValue &&
+                    x.ToBeCompletedByDateUtc.Value < dueBefore.Value);
+            }
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .OrderBy(x => x.IsCompleted)
+                .ThenByDescending(x => x.Priority)
+                .ThenBy(x => x.ToBeCompletedByDateUtc)
+                .ThenByDescending(x => x.CreatedAtUtc)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (items, totalCount);
+        }
 
     }
 }

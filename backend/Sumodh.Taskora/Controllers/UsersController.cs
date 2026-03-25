@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sumodh.Taskora.Api.Contracts.Users;
+using Sumodh.Taskora.Application.Abstractions.Identity;
 using Sumodh.Taskora.Application.Features.Users.Queries.GetById;
 using Sumodh.Taskora.Application.Features.Users.Queries.GetCurrentUser;
 
@@ -13,9 +14,13 @@ namespace Sumodh.Taskora.Api.Controllers
         [Authorize]
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<UserDto>> GetUserById(int id,[FromServices] GetUserByIdQueryHandler handler,CancellationToken cancellationToken)
+        public async Task<ActionResult<UserDto>> GetUserById(int id,[FromServices] GetUserByIdQueryHandler handler,[FromServices] ICurrentUserService currentUserService,CancellationToken cancellationToken)
         {
+            if (id != currentUserService.UserId)
+                return Forbid();
+
             var result = await handler.Handle(new GetUserByIdQuery(id), cancellationToken);
             if (result is null)
                 return NotFound();

@@ -40,11 +40,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\ReopenTodoCommandHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\UpdateTodoCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\UpdateTodoCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Dtos\PagedResultDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Dtos\TodoDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Queries\GetMyTodosQuery.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Queries\GetMyTodosQueryHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Queries\GetMyTodosQueryResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Queries\GetTodoByIdQuery.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Queries\GetTodoByIdQueryHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Queries\TodoStatusFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Users\Dtos\UserDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Users\Queries\GetById\GetUserByIdQuery.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Users\Queries\GetById\GetUserByIdQueryHandler.cs" />

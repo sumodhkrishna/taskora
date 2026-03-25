@@ -10,6 +10,7 @@ namespace Sumodh.Taskora.Application.Abstractions.Persistence
         Task SaveChangesAsync(CancellationToken cancellationToken); 
         Task<TodoItem?> GetByIdForUserAsync(int id, int userId, CancellationToken cancellationToken);
         void Remove(TodoItem todoItem);
+        Task<(List<TodoItem> Items, int TotalCount)> GetPagedForUserAsync(int userId,bool? isCompleted,int? priority,string? search,DateTime? dueBefore,int page,int pageSize,CancellationToken cancellationToken);
 
     }
 }
