@@ -84,6 +84,14 @@ From the repo root:
 .\start-taskora.ps1
 ```
 
+The script will:
+
+- create the frontend `.env` file if it does not already exist
+- restore backend NuGet packages
+- install frontend packages automatically with `npm ci` when `package-lock.json` is present, otherwise `npm install`
+- wait for the backend and frontend to become reachable
+- open the frontend in the default browser
+
 This starts:
 
 - backend: `https://localhost:7002`
