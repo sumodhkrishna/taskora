@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>7344f94e-0728-47b8-b631-8a95e74b0965</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Sumodh.Taskora.Infra</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Authentication\CurrentUserService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Authentication\JwtOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Authentication\JwtTokenGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Authentication\PasswordHasher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Authentication\PasswordResetTokenGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Authentication\RefreshTokenGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Persistance\AppDbContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Persistance\Repositories\RefreshTokenRepository.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Persistance\Repositories\TodoRepository.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Persistance\Repositories\UserRepository.cs" />
+  </ItemGroup>
+</Project>

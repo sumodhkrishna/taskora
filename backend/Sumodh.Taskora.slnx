@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Sumodh.Taskora.Application/Sumodh.Taskora.Application.shproj" />
+  <Project Path="Sumodh.Taskora.Domain/Sumodh.Taskora.Domain.shproj" />
+  <Project Path="Sumodh.Taskora.Infra/Sumodh.Taskora.Infra.shproj" />
+  <Project Path="Sumodh.Taskora.Test/Sumodh.Taskora.Test.csproj" Id="fd51a311-2e03-423c-8b8b-b29612885c24" />
+  <Project Path="Sumodh.Taskora/Sumodh.Taskora.Api.csproj" />
+</Solution>

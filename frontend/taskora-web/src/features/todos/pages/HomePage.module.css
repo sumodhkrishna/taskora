@@ -1,0 +1,420 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 32px 24px;
+  background:
+    radial-gradient(circle at top left, rgba(71, 85, 215, 0.24), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.2), transparent 35%),
+    linear-gradient(135deg, #08142f 0%, #132b6b 45%, #2a2f7a 100%);
+}
+
+.backgroundGlowTop {
+  position: absolute;
+  top: -140px;
+  left: -100px;
+  width: 360px;
+  height: 360px;
+  background: rgba(59, 130, 246, 0.2);
+  filter: blur(100px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.backgroundGlowBottom {
+  position: absolute;
+  right: -120px;
+  bottom: -140px;
+  width: 380px;
+  height: 380px;
+  background: rgba(168, 85, 247, 0.18);
+  filter: blur(120px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.brand {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+
+.pageTitle {
+  margin: 0 0 8px;
+  font-size: 2.4rem;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.pageSubtitle {
+  margin: 0;
+  max-width: 680px;
+  color: rgba(226, 232, 240, 0.78);
+  line-height: 1.6;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.userBadge,
+.logoutButton,
+.summaryCard,
+.panel,
+.todoCard {
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.userBadge {
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.logoutButton,
+.primaryButton,
+.secondaryButton,
+.dangerButton,
+.statusButton,
+.textButton {
+  border: none;
+  cursor: pointer;
+  transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+}
+
+.logoutButton {
+  height: 46px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.logoutButton:hover,
+.primaryButton:hover,
+.secondaryButton:hover,
+.dangerButton:hover,
+.statusButton:hover {
+  transform: translateY(-1px);
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.summaryCard {
+  padding: 20px 22px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+}
+
+.summaryLabel {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.92rem;
+  color: rgba(226, 232, 240, 0.78);
+}
+
+.summaryValue {
+  font-size: 2rem;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
+  gap: 20px;
+}
+
+.panel {
+  padding: 24px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #ffffff;
+}
+
+.textButton {
+  background: transparent;
+  color: #c7d2fe;
+  font-weight: 600;
+}
+
+.form,
+.todoList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  outline: none;
+  font-size: 0.96rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-sizing: border-box;
+}
+
+.select {
+  color-scheme: dark;
+}
+
+.select option {
+  background: #2f4b88;
+  color: #ffffff;
+}
+
+.input,
+.select {
+  height: 52px;
+  padding: 0 16px;
+}
+
+.textarea {
+  min-height: 130px;
+  padding: 14px 16px;
+  resize: vertical;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: rgba(226, 232, 240, 0.45);
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: rgba(96, 165, 250, 0.75);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.14);
+}
+
+.primaryButton {
+  height: 54px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #4f7cff 0%, #6b7cff 45%, #8b5cf6 100%);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 0 14px 30px rgba(79, 124, 255, 0.32);
+}
+
+.secondaryButton,
+.statusButton {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.dangerButton {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.14);
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+.errorMessage {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  color: #fecaca;
+  font-size: 0.92rem;
+}
+
+.emptyState {
+  padding: 28px 20px;
+  border-radius: 18px;
+  text-align: center;
+  color: rgba(226, 232, 240, 0.78);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.todoCard {
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.todoCardCompleted {
+  opacity: 0.75;
+}
+
+.todoTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.todoTitle {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+.metaRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.priorityBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.18);
+  color: #dbeafe;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.metaText {
+  color: rgba(226, 232, 240, 0.72);
+  font-size: 0.9rem;
+}
+
+.todoDescription {
+  margin: 0 0 16px;
+  color: rgba(226, 232, 240, 0.82);
+  line-height: 1.6;
+}
+
+.todoFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.todoActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1080px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 22px 16px;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .todoTop,
+  .todoFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .todoActions {
+    width: 100%;
+  }
+
+  .secondaryButton,
+  .dangerButton,
+  .statusButton {
+    width: 100%;
+  }
+}

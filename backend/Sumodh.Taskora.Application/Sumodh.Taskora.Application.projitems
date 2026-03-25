@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>ebab9cc5-db08-4bee-ae3e-2ebb4864a6af</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Sumodh.Taskora.Application</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IJWTTokenGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IPasswordHasher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IPasswordResetTokenGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IRefreshTokenGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Identity\ICurrentUserService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Persistence\IRefreshTokenRepository.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Persistence\ITodoRepository.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Persistence\IUserRepository.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\Login\LoginCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\Login\LoginCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\Logout\LogoutCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\Logout\LogoutCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\RefreshToken\RefreshTokenCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\RefreshToken\RefreshTokenCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\Register\RegisterCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\Register\RegisterCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\RequestPasswordReset\RequestPasswordResetCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\RequestPasswordReset\RequestPasswordResetCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\ResetPassword\ResetPasswordCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\ResetPassword\ResetPasswordCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Dtos\AuthResponseDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\CompleteTodoCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\CompleteTodoCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\CreateTodoCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\CreateTodoCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\DeleteTodoCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\DeleteTodoCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\ReopenTodoCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\ReopenTodoCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\UpdateTodoCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\UpdateTodoCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Dtos\TodoDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Queries\GetMyTodosQuery.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Queries\GetMyTodosQueryHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Queries\GetTodoByIdQuery.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Queries\GetTodoByIdQueryHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Users\Dtos\UserDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Users\Queries\GetById\GetUserByIdQuery.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Users\Queries\GetById\GetUserByIdQueryHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Users\Queries\GetCurrentUser\GetCurrentUserQuery.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Users\Queries\GetCurrentUser\GetCurrentUserQueryHandler.cs" />
+  </ItemGroup>
+</Project>

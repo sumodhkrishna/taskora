@@ -1,0 +1,138 @@
+[CmdletBinding()]
+param()
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+$repoRoot = $PSScriptRoot
+$backendProject = Join-Path $repoRoot "backend\Sumodh.Taskora\Sumodh.Taskora.Api.csproj"
+$frontendDir = Join-Path $repoRoot "frontend\taskora-web"
+$frontendEnvFile = Join-Path $frontendDir ".env"
+$frontendNodeModules = Join-Path $frontendDir "node_modules"
+$backendUrl = "https://localhost:7002"
+$frontendUrl = "http://localhost:5173"
+
+function Write-Step {
+    param([string]$Message)
+
+    Write-Host "[Taskora] $Message" -ForegroundColor Cyan
+}
+
+function Write-Missing {
+    param([string]$Message)
+
+    Write-Host "[Missing] $Message" -ForegroundColor Red
+}
+
+function Test-CommandAvailable {
+    param([string]$Name)
+
+    return $null -ne (Get-Command $Name -ErrorAction SilentlyContinue)
+}
+
+function Get-ShellExecutable {
+    if (Test-CommandAvailable "pwsh") {
+        return (Get-Command "pwsh").Source
+    }
+
+    if (Test-CommandAvailable "powershell") {
+        return (Get-Command "powershell").Source
+    }
+
+    throw "PowerShell executable was not found."
+}
+
+function Test-HttpsDevCertificate {
+    $result = Start-Process -FilePath "dotnet" `
+        -ArgumentList "dev-certs", "https", "--check", "--quiet" `
+        -NoNewWindow `
+        -Wait `
+        -PassThru
+
+    return $result.ExitCode -eq 0
+}
+
+$missingItems = New-Object System.Collections.Generic.List[string]
+
+Write-Step "Checking Windows compatibility and local dependencies..."
+
+if (-not $IsWindows) {
+    $missingItems.Add("This startup script is intended for Windows systems.")
+}
+
+if (-not (Test-CommandAvailable "dotnet")) {
+    $missingItems.Add(".NET SDK was not found. Install the .NET SDK to run the backend.")
+}
+
+if (-not (Test-CommandAvailable "node")) {
+    $missingItems.Add("Node.js was not found. Install Node.js to run the frontend.")
+}
+
+if (-not (Test-CommandAvailable "npm")) {
+    $missingItems.Add("npm was not found. Install Node.js with npm to run the frontend.")
+}
+
+if (-not (Test-Path $backendProject)) {
+    $missingItems.Add("Backend project file is missing at '$backendProject'.")
+}
+
+if (-not (Test-Path $frontendDir)) {
+    $missingItems.Add("Frontend directory is missing at '$frontendDir'.")
+}
+
+if (-not (Test-Path $frontendEnvFile)) {
+    $missingItems.Add("Frontend .env file is missing at '$frontendEnvFile'.")
+}
+elseif (-not (Select-String -Path $frontendEnvFile -Pattern '^VITE_API_BASE_URL=' -Quiet)) {
+    $missingItems.Add("Frontend .env file does not define VITE_API_BASE_URL.")
+}
+
+if (-not (Test-Path $frontendNodeModules)) {
+    $missingItems.Add("Frontend npm packages are not installed. Run 'npm install' in '$frontendDir'.")
+}
+
+if ($missingItems.Count -eq 0 -and -not (Test-HttpsDevCertificate)) {
+    $missingItems.Add("The local ASP.NET HTTPS development certificate is missing or not trusted. Run 'dotnet dev-certs https --trust'.")
+}
+
+if ($missingItems.Count -gt 0) {
+    Write-Host ""
+    Write-Host "Taskora could not be started because some dependencies or prerequisites are missing:" -ForegroundColor Yellow
+
+    foreach ($item in $missingItems) {
+        Write-Missing $item
+    }
+
+    Write-Host ""
+    Write-Host "Fix the items above and run '.\start-taskora.ps1' again." -ForegroundColor Yellow
+    exit 1
+}
+
+$shellExe = Get-ShellExecutable
+
+$backendCommand = @"
+Set-Location '$repoRoot'
+`$Host.UI.RawUI.WindowTitle = 'Taskora Backend'
+dotnet run --project '$backendProject' --launch-profile https
+"@
+
+$frontendCommand = @"
+Set-Location '$frontendDir'
+`$Host.UI.RawUI.WindowTitle = 'Taskora Frontend'
+npm run dev
+"@
+
+Write-Step "Starting backend in a new PowerShell window..."
+Start-Process -FilePath $shellExe -ArgumentList @("-NoExit", "-Command", $backendCommand) | Out-Null
+
+Start-Sleep -Seconds 3
+
+Write-Step "Starting frontend in a new PowerShell window..."
+Start-Process -FilePath $shellExe -ArgumentList @("-NoExit", "-Command", $frontendCommand) | Out-Null
+
+Write-Host ""
+Write-Host "Taskora is starting up." -ForegroundColor Green
+Write-Host "Backend:  $backendUrl" -ForegroundColor Green
+Write-Host "Frontend: $frontendUrl" -ForegroundColor Green
+Write-Host ""
+Write-Host "If this is the first run, give the backend a few seconds to finish startup before using the app." -ForegroundColor DarkYellow
