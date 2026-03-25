@@ -2,6 +2,12 @@
   "name": "taskora-web",
   "private": true,
   "version": "0.0.0",
+  "author": {
+    "name": "Sumodh Sudhakaran",
+    "email": "sumodhkrishna@live.com",
+    "url": "https://www.sumodh.com/"
+  },
+  "homepage": "https://www.sumodh.com/",
   "type": "module",
   "scripts": {
     "dev": "vite",

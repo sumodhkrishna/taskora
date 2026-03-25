@@ -87,10 +87,6 @@ elseif (-not (Select-String -Path $frontendEnvFile -Pattern '^VITE_API_BASE_URL=
     $missingItems.Add("Frontend .env file does not define VITE_API_BASE_URL.")
 }
 
-if (-not (Test-Path $frontendNodeModules)) {
-    $missingItems.Add("Frontend npm packages are not installed. Run 'npm install' in '$frontendDir'.")
-}
-
 if ($missingItems.Count -eq 0 -and -not (Test-HttpsDevCertificate)) {
     $missingItems.Add("The local ASP.NET HTTPS development certificate is missing or not trusted. Run 'dotnet dev-certs https --trust'.")
 }
@@ -109,6 +105,23 @@ if ($missingItems.Count -gt 0) {
 }
 
 $shellExe = Get-ShellExecutable
+
+Write-Step "Restoring backend NuGet packages..."
+dotnet restore $backendProject
+
+if (-not (Test-Path $frontendNodeModules)) {
+    Write-Step "Installing frontend npm packages..."
+    Push-Location $frontendDir
+    try {
+        npm install
+    }
+    finally {
+        Pop-Location
+    }
+}
+else {
+    Write-Step "Frontend npm packages already installed."
+}
 
 $backendCommand = @"
 Set-Location '$repoRoot'
@@ -129,6 +142,11 @@ Start-Sleep -Seconds 3
 
 Write-Step "Starting frontend in a new PowerShell window..."
 Start-Process -FilePath $shellExe -ArgumentList @("-NoExit", "-Command", $frontendCommand) | Out-Null
+
+Start-Sleep -Seconds 2
+
+Write-Step "Opening frontend in the default browser..."
+Start-Process -FilePath $frontendUrl | Out-Null
 
 Write-Host ""
 Write-Host "Taskora is starting up." -ForegroundColor Green
