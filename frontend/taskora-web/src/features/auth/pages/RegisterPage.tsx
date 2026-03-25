@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AxiosError } from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/authApi";
 import styles from "./RegisterPage.module.css";
@@ -52,10 +53,12 @@ export function RegisterPage() {
       });
 
       navigate("/");
-    } catch (error: any) {
-      if (error?.response?.status === 409) {
+    } catch (error: unknown) {
+      const status = error instanceof AxiosError ? error.response?.status : undefined;
+
+      if (status === 409) {
         setErrorMessage("An account with this email already exists.");
-      } else if (error?.response?.status === 400) {
+      } else if (status === 400) {
         setErrorMessage("Please check the entered details.");
       } else {
         setErrorMessage("Unable to create your account.");
