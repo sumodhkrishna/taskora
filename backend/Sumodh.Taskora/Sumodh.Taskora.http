@@ -1,0 +1,6 @@
+@Sumodh.Taskora_HostAddress = http://localhost:5241
+
+GET {{Sumodh.Taskora_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
