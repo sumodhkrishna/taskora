@@ -34,3 +34,4 @@ yarn-error.log*
 pnpm-debug.log*
 backend/Sumodh.Taskora/todoapp.db-shm
 backend/Sumodh.Taskora/todoapp.db-wal
+backend/Sumodh.Taskora/Properties/PublishProfiles/taskora - Zip Deploy.pubxml
