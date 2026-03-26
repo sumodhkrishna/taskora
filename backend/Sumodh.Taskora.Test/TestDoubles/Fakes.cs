@@ -1,4 +1,5 @@
 using Sumodh.Taskora.Application.Abstractions.Authentication;
+using Sumodh.Taskora.Application.Abstractions.Communication;
 using Sumodh.Taskora.Application.Abstractions.Identity;
 using Sumodh.Taskora.Application.Abstractions.Persistence;
 using Sumodh.Taskora.Domain.Authentication;
@@ -214,5 +215,18 @@ internal sealed class StubPasswordResetTokenGenerator : IPasswordResetTokenGener
     {
         LastHashArgument = token;
         return HashResult;
+    }
+}
+
+internal sealed class StubPasswordResetEmailSender : IPasswordResetEmailSender
+{
+    public (string Name, string Email, string ResetToken)? LastSendArguments { get; private set; }
+    public int SendCallCount { get; private set; }
+
+    public Task SendAsync(string name, string email, string resetToken, CancellationToken cancellationToken)
+    {
+        LastSendArguments = (name, email, resetToken);
+        SendCallCount++;
+        return Task.CompletedTask;
     }
 }

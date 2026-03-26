@@ -15,6 +15,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Authentication\PasswordHasher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Authentication\PasswordResetTokenGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Authentication\RefreshTokenGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Email\ConsolePasswordResetEmailSender.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Email\SendGridEmailOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Email\SendGridPasswordResetEmailSender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Persistance\AppDbContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Persistance\Repositories\RefreshTokenRepository.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Persistance\Repositories\TodoRepository.cs" />

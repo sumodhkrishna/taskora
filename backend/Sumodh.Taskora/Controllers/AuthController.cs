@@ -49,11 +49,10 @@ namespace Sumodh.Taskora.Api.Controllers
         [HttpPost("password-reset/request")]
         public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetRequest request, [FromServices] RequestPasswordResetCommandHandler handler, CancellationToken cancellationToken)
         {
-            var token = await handler.Handle(new RequestPasswordResetCommand(request.Email), cancellationToken);
+            await handler.Handle(new RequestPasswordResetCommand(request.Email), cancellationToken);
             return Ok(new
             {
-                message = "If the account exists, a password reset process has been started.",
-                token
+                message = "If the account exists, a password reset email has been sent."
             });
         }
 

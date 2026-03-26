@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Sumodh.Taskora.Application.Abstractions.Authentication;
+using Sumodh.Taskora.Application.Abstractions.Communication;
 using Sumodh.Taskora.Application.Abstractions.Identity;
 using Sumodh.Taskora.Application.Abstractions.Persistence;
 using Sumodh.Taskora.Application.Features.Auth.Commands.Login;
@@ -17,6 +18,7 @@ using Sumodh.Taskora.Application.Features.Todos.Queries;
 using Sumodh.Taskora.Application.Features.Users.Queries.GetById;
 using Sumodh.Taskora.Application.Features.Users.Queries.GetCurrentUser;
 using Sumodh.Taskora.Infra.Authentication;
+using Sumodh.Taskora.Infra.Email;
 using Sumodh.Taskora.Infra.Persistance;
 using Sumodh.Taskora.Infra.Persistance.Repositories;
 using Sumodh.Taskora.Infrastructure;
@@ -39,6 +41,11 @@ namespace Sumodh.Taskora
 
             builder.Services.Configure<JwtOptions>(
                 builder.Configuration.GetSection(JwtOptions.SectionName));
+            builder.Services
+                .AddOptions<SendGridEmailOptions>()
+                .Bind(builder.Configuration.GetSection(SendGridEmailOptions.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
 
             var allowedOrigins = builder.Configuration
                 .GetSection("Cors:AllowedOrigins")
@@ -102,6 +109,17 @@ namespace Sumodh.Taskora
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             builder.Services.AddScoped<ITodoRepository, TodoRepository>();
             builder.Services.AddScoped<IPasswordResetTokenGenerator, PasswordResetTokenGenerator>();
+            if (builder.Environment.IsDevelopment())
+            {
+                builder.Services.AddScoped<IPasswordResetEmailSender, ConsolePasswordResetEmailSender>();
+            }
+            else
+            {
+                builder.Services.AddHttpClient<IPasswordResetEmailSender, SendGridPasswordResetEmailSender>(client =>
+                {
+                    client.BaseAddress = new Uri("https://api.sendgrid.com/v3/");
+                });
+            }
             builder.Services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 

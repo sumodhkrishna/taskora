@@ -1,4 +1,5 @@
-﻿using Sumodh.Taskora.Application.Abstractions.Authentication;
+using Sumodh.Taskora.Application.Abstractions.Authentication;
+using Sumodh.Taskora.Application.Abstractions.Communication;
 using Sumodh.Taskora.Application.Abstractions.Persistence;
 
 namespace Sumodh.Taskora.Application.Features.Auth.Commands.RequestPasswordReset
@@ -7,22 +8,26 @@ namespace Sumodh.Taskora.Application.Features.Auth.Commands.RequestPasswordReset
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordResetTokenGenerator _tokenGenerator;
+        private readonly IPasswordResetEmailSender _passwordResetEmailSender;
 
-        public RequestPasswordResetCommandHandler(IUserRepository userRepository,IPasswordResetTokenGenerator tokenGenerator)
+        public RequestPasswordResetCommandHandler(
+            IUserRepository userRepository,
+            IPasswordResetTokenGenerator tokenGenerator,
+            IPasswordResetEmailSender passwordResetEmailSender)
         {
             _userRepository = userRepository;
             _tokenGenerator = tokenGenerator;
+            _passwordResetEmailSender = passwordResetEmailSender;
         }
 
-        public async Task<string?> Handle(RequestPasswordResetCommand command,CancellationToken cancellationToken)
+        public async Task Handle(RequestPasswordResetCommand command,CancellationToken cancellationToken)
         {
             var email = command.Email.Trim().ToLowerInvariant();
 
             var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
-
             if (user is null)
             {
-                return null;
+                return;
             }
 
             var rawToken = _tokenGenerator.Generate();
@@ -32,8 +37,7 @@ namespace Sumodh.Taskora.Application.Features.Auth.Commands.RequestPasswordReset
             user.SetPasswordResetToken(hashedToken, expiresAtUtc);
 
             await _userRepository.SaveChangesAsync(cancellationToken);
-
-            return rawToken;
+            await _passwordResetEmailSender.SendAsync(user.Name, user.Email, rawToken, cancellationToken);
         }
     }
 }

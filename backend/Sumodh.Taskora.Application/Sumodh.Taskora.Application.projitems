@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IPasswordHasher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IPasswordResetTokenGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IRefreshTokenGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Communication\IPasswordResetEmailSender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Identity\ICurrentUserService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Persistence\IRefreshTokenRepository.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Persistence\ITodoRepository.cs" />
