@@ -45,8 +45,21 @@
   margin-bottom: 24px;
 }
 
-.brand {
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 8px;
+}
+
+.brandIcon {
+  width: 32px;
+  height: 32px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.brand {
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.04em;

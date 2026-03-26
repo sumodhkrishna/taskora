@@ -53,7 +53,10 @@ export function LoginPage() {
             <div className={styles.backgroundGlowBottom} />
 
             <div className={styles.card}>
-                <div className={styles.logo}>Taskora</div>
+                <div className={styles.logoRow}>
+                    <img src="/favicon.svg" alt="" className={styles.logoIcon} />
+                    <div className={styles.logo}>Taskora</div>
+                </div>
 
                 <div className={styles.header}>
                     <h1 className={styles.title}>Welcome back</h1>

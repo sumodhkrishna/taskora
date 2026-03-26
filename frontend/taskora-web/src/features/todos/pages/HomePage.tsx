@@ -246,7 +246,10 @@ export function HomePage() {
       <div className={styles.shell}>
         <header className={styles.header}>
           <div>
-            <div className={styles.brand}>Taskora</div>
+            <div className={styles.brandRow}>
+              <img src="/favicon.svg" alt="" className={styles.brandIcon} />
+              <div className={styles.brand}>Taskora</div>
+            </div>
             <h1 className={styles.pageTitle}>Your tasks</h1>
             <p className={styles.pageSubtitle}>
               Create, track, complete, and organize your work in one place.

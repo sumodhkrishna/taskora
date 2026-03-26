@@ -25,7 +25,7 @@ namespace Sumodh.Taskora.Application.Features.Auth.Commands.ResetPassword
             if (user is null)
                 return false;
 
-            var tokenHash = command.Token;
+            var tokenHash = _tokenGenerator.Hash(command.Token.Trim());
 
             if (!user.CanUsePasswordResetToken(tokenHash, DateTime.UtcNow))
                 return false;

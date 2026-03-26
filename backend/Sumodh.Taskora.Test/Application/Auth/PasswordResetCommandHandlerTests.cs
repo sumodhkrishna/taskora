@@ -55,9 +55,9 @@ public class PasswordResetCommandHandlerTests
     public async Task ResetHandle_WithValidUserAndToken_UpdatesPasswordAndClearsResetState()
     {
         var user = new User("Sumodh", "user@example.com", "old-hash");
-        user.SetPasswordResetToken("raw-token", DateTime.UtcNow.AddMinutes(30));
+        user.SetPasswordResetToken("hashed-reset-token", DateTime.UtcNow.AddMinutes(30));
         var userRepository = new FakeUserRepository { UserByEmailResult = user };
-        var tokenGenerator = new StubPasswordResetTokenGenerator();
+        var tokenGenerator = new StubPasswordResetTokenGenerator { HashResult = "hashed-reset-token" };
         var passwordHasher = new StubPasswordHasher { HashResult = "new-hash" };
         var handler = new ResetPasswordCommandHandler(userRepository, tokenGenerator, passwordHasher);
 
@@ -67,6 +67,7 @@ public class PasswordResetCommandHandlerTests
 
         Assert.True(result);
         Assert.Equal("user@example.com", userRepository.LastGetByEmailArgument);
+        Assert.Equal("raw-token", tokenGenerator.LastHashArgument);
         Assert.Equal("new-password", passwordHasher.LastHashArgument);
         Assert.Equal("new-hash", user.PasswordHash);
         Assert.Null(user.PasswordResetTokenHash);
@@ -92,12 +93,13 @@ public class PasswordResetCommandHandlerTests
     public async Task ResetHandle_WhenTokenInvalid_ReturnsFalse()
     {
         var user = new User("Sumodh", "user@example.com", "old-hash");
-        user.SetPasswordResetToken("valid-token", DateTime.UtcNow.AddMinutes(30));
+        user.SetPasswordResetToken("valid-token-hash", DateTime.UtcNow.AddMinutes(30));
         var userRepository = new FakeUserRepository { UserByEmailResult = user };
         var passwordHasher = new StubPasswordHasher();
+        var tokenGenerator = new StubPasswordResetTokenGenerator { HashResult = "wrong-token-hash" };
         var handler = new ResetPasswordCommandHandler(
             userRepository,
-            new StubPasswordResetTokenGenerator(),
+            tokenGenerator,
             passwordHasher);
 
         var result = await handler.Handle(
@@ -105,6 +107,7 @@ public class PasswordResetCommandHandlerTests
             CancellationToken.None);
 
         Assert.False(result);
+        Assert.Equal("wrong-token", tokenGenerator.LastHashArgument);
         Assert.Null(passwordHasher.LastHashArgument);
         Assert.Equal(0, userRepository.SaveChangesCallCount);
     }
