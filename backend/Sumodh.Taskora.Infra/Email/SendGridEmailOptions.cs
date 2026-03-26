@@ -19,5 +19,9 @@ namespace Sumodh.Taskora.Infra.Email
         [Required]
         [Url]
         public string PasswordResetUrl { get; init; } = string.Empty;
+
+        [Required]
+        [Url]
+        public string EmailVerificationUrl { get; init; } = string.Empty;
     }
 }

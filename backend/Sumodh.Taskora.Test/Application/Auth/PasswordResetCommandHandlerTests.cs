@@ -20,10 +20,11 @@ public class PasswordResetCommandHandlerTests
         var emailSender = new StubPasswordResetEmailSender();
         var handler = new RequestPasswordResetCommandHandler(userRepository, tokenGenerator, emailSender);
 
-        await handler.Handle(
+        var result = await handler.Handle(
             new RequestPasswordResetCommand("  USER@Example.com  "),
             CancellationToken.None);
 
+        Assert.True(result);
         Assert.Equal("user@example.com", userRepository.LastGetByEmailArgument);
         Assert.Equal(1, tokenGenerator.GenerateCallCount);
         Assert.Equal("raw-reset-token", tokenGenerator.LastHashArgument);
@@ -42,10 +43,11 @@ public class PasswordResetCommandHandlerTests
         var emailSender = new StubPasswordResetEmailSender();
         var handler = new RequestPasswordResetCommandHandler(userRepository, tokenGenerator, emailSender);
 
-        await handler.Handle(
+        var result = await handler.Handle(
             new RequestPasswordResetCommand("user@example.com"),
             CancellationToken.None);
 
+        Assert.False(result);
         Assert.Equal(0, tokenGenerator.GenerateCallCount);
         Assert.Equal(0, userRepository.SaveChangesCallCount);
         Assert.Equal(0, emailSender.SendCallCount);

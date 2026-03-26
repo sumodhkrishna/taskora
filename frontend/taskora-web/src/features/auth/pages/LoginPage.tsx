@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { login } from "../api/authApi";
+import { AxiosError } from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { login } from "../api/authApi";
 import { saveAuthSession } from "../services/authStorage";
 import styles from "./LoginPage.module.css";
 
@@ -35,12 +36,24 @@ export function LoginPage() {
                 response.name,
                 response.email
             );
-            console.log("Login successful");
 
             navigate("/home");
+        } catch (error: unknown) {
+            const axiosError = error instanceof AxiosError ? error : null;
+            const status = axiosError?.response?.status;
+            const detail =
+                typeof axiosError?.response?.data === "object" &&
+                axiosError.response?.data &&
+                "detail" in axiosError.response.data
+                    ? String(axiosError.response.data.detail)
+                    : "";
 
-        } catch (error) {
-            setErrorMessage("Invalid email or password.");
+            if (status === 403) {
+                setErrorMessage(detail || "Please verify your email before signing in.");
+            } else {
+                setErrorMessage("Invalid email or password.");
+            }
+
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -118,6 +131,11 @@ export function LoginPage() {
                 <div className={styles.secondaryFooter}>
                     <Link to="/forgot-password" className={styles.link}>
                         Forgot password?
+                    </Link>
+                </div>
+                <div className={styles.secondaryFooter}>
+                    <Link to="/verify-email" className={styles.link}>
+                        Verify or resend email
                     </Link>
                 </div>
             </div>

@@ -3,13 +3,6 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface LoginResponse {
-  token: string;
-  userId: number | string;
-  name: string;
-  email: string;
-}
-
 export interface RegisterRequest {
   name: string;
   email: string;
@@ -31,6 +24,16 @@ export interface ResetPasswordRequest {
   token: string;
   newPassword: string;
 }
+
+export interface VerifyEmailRequest {
+  email: string;
+  token: string;
+}
+
+export interface ResendVerificationEmailRequest {
+  email: string;
+}
+
 export interface RefreshTokenRequest {
   refreshToken: string;
 }
@@ -45,4 +48,21 @@ export interface AuthResponseDto {
   userId: number | string;
   name: string;
   email: string;
+}
+
+export interface DevelopmentEmailPreviewDto {
+  recipientEmail: string;
+  subject: string;
+  actionUrl: string;
+  token: string;
+}
+
+export interface EmailActionResponseDto {
+  message: string;
+  email?: string | null;
+  devEmailPreview?: DevelopmentEmailPreviewDto | null;
+}
+
+export interface MessageResponseDto {
+  message: string;
 }

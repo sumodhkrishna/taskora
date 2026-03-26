@@ -14,9 +14,11 @@ public class ConsolePasswordResetEmailSenderTests
             ApiKey = "dev-placeholder",
             FromEmail = "verified-sender@example.com",
             FromName = "Taskora Dev",
-            PasswordResetUrl = "http://localhost:5173/reset-password"
+            PasswordResetUrl = "http://localhost:5173/reset-password",
+            EmailVerificationUrl = "http://localhost:5173/verify-email"
         });
-        var sender = new ConsolePasswordResetEmailSender(options);
+        var previewStore = new DevelopmentEmailPreviewStore();
+        var sender = new ConsolePasswordResetEmailSender(options, previewStore);
         var originalOut = Console.Out;
         using var writer = new StringWriter();
 
@@ -36,5 +38,6 @@ public class ConsolePasswordResetEmailSenderTests
         Assert.Contains("localhost:5173/reset-password", output);
         Assert.Contains("token=reset-token-123", output);
         Assert.Contains("Reset Token: reset-token-123", output);
+        Assert.NotNull(previewStore.GetLatest("password-reset", "user@example.com"));
     }
 }

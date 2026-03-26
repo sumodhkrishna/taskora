@@ -9,10 +9,14 @@
     <Import_RootNamespace>Sumodh.Taskora.Application</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IEmailVerificationTokenGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IJWTTokenGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IPasswordHasher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IPasswordResetTokenGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IRefreshTokenGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Communication\DevelopmentEmailPreview.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Communication\IDevelopmentEmailPreviewStore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Communication\IEmailVerificationEmailSender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Communication\IPasswordResetEmailSender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Identity\ICurrentUserService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Persistence\IRefreshTokenRepository.cs" />
@@ -26,11 +30,19 @@
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\RefreshToken\RefreshTokenCommandHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\Register\RegisterCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\Register\RegisterCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\ResendEmailVerification\ResendEmailVerificationCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\ResendEmailVerification\ResendEmailVerificationCommandHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\RequestPasswordReset\RequestPasswordResetCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\RequestPasswordReset\RequestPasswordResetCommandHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\ResetPassword\ResetPasswordCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\ResetPassword\ResetPasswordCommandHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\VerifyEmail\VerifyEmailCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\VerifyEmail\VerifyEmailCommandHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Dtos\AuthResponseDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Dtos\DevelopmentEmailPreviewDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Dtos\EmailActionResponseDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Dtos\MessageResponseDto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Exceptions\EmailNotVerifiedException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\CompleteTodoCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\CompleteTodoCommandHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Todos\Commands\CreateTodoCommand.cs" />

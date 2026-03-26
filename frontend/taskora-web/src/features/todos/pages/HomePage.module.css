@@ -438,10 +438,33 @@
   height: 28px;
   padding: 0 10px;
   border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.priorityLow {
+  background: rgba(69, 179, 126, 0.14);
+  color: #177245;
+  border-color: rgba(69, 179, 126, 0.28);
+}
+
+.priorityMedium {
+  background: rgba(245, 166, 35, 0.16);
+  color: #a15c00;
+  border-color: rgba(245, 166, 35, 0.3);
+}
+
+.priorityHigh {
+  background: rgba(226, 82, 65, 0.16);
+  color: #b33224;
+  border-color: rgba(226, 82, 65, 0.32);
+}
+
+.priorityUnknown {
   background: rgba(91, 127, 163, 0.12);
   color: var(--color-primary-hover);
-  font-size: 0.82rem;
-  font-weight: 600;
+  border-color: rgba(91, 127, 163, 0.22);
 }
 
 .metaText {

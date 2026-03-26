@@ -1,9 +1,5 @@
-﻿using Sumodh.Taskora.Domain.Authentication;
+using Sumodh.Taskora.Domain.Authentication;
 using Sumodh.Taskora.Domain.Todos;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.Linq;
 
 namespace Sumodh.Taskora.Domain.Users
 {
@@ -15,12 +11,18 @@ namespace Sumodh.Taskora.Domain.Users
         public string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; }
 
+        public DateTime? EmailVerifiedAtUtc { get; private set; }
+        public string? EmailVerificationTokenHash { get; private set; }
+        public DateTime? EmailVerificationTokenExpiresAtUtc { get; private set; }
+        public bool IsEmailVerified { get; private set; }
+
         public string? PasswordResetTokenHash { get; private set; }
         public DateTime? PasswordResetTokenExpiresAtUtc { get; private set; }
         public DateTime? PasswordResetRequestedAtUtc { get; private set; }
 
         public ICollection<TodoItem> TodoItems { get; private set; } = new List<TodoItem>();
         public ICollection<RefreshToken> RefreshTokens { get; private set; } = new List<RefreshToken>();
+
         public User(string name, string email, string passwordHash)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -31,10 +33,51 @@ namespace Sumodh.Taskora.Domain.Users
 
             if (string.IsNullOrWhiteSpace(passwordHash))
                 throw new InvalidDataException("Password hash is required.");
+
             Email = email.Trim().ToLowerInvariant();
             Name = name;
             PasswordHash = passwordHash;
             CreatedAt = DateTime.UtcNow;
+            IsEmailVerified = false;
+        }
+
+        public void SetEmailVerificationToken(string tokenHash, DateTime expiresAtUtc)
+        {
+            if (string.IsNullOrWhiteSpace(tokenHash))
+                throw new ArgumentException("Token hash is required.", nameof(tokenHash));
+
+            EmailVerificationTokenHash = tokenHash;
+            EmailVerificationTokenExpiresAtUtc = expiresAtUtc;
+        }
+
+        public bool CanUseEmailVerificationToken(string tokenHash, DateTime utcNow)
+        {
+            if (string.IsNullOrWhiteSpace(tokenHash))
+                return false;
+
+            if (IsEmailVerified)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(EmailVerificationTokenHash))
+                return false;
+
+            if (EmailVerificationTokenExpiresAtUtc is null || EmailVerificationTokenExpiresAtUtc <= utcNow)
+                return false;
+
+            return EmailVerificationTokenHash == tokenHash;
+        }
+
+        public void MarkEmailVerified(DateTime verifiedAtUtc)
+        {
+            IsEmailVerified = true;
+            EmailVerifiedAtUtc = verifiedAtUtc;
+            ClearEmailVerificationToken();
+        }
+
+        public void ClearEmailVerificationToken()
+        {
+            EmailVerificationTokenHash = null;
+            EmailVerificationTokenExpiresAtUtc = null;
         }
 
         public void SetPasswordResetToken(string tokenHash, DateTime expiresAtUtc)
@@ -77,5 +120,4 @@ namespace Sumodh.Taskora.Domain.Users
             PasswordResetRequestedAtUtc = null;
         }
     }
-
 }

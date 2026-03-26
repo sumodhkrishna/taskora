@@ -20,14 +20,14 @@ namespace Sumodh.Taskora.Application.Features.Auth.Commands.RequestPasswordReset
             _passwordResetEmailSender = passwordResetEmailSender;
         }
 
-        public async Task Handle(RequestPasswordResetCommand command,CancellationToken cancellationToken)
+        public async Task<bool> Handle(RequestPasswordResetCommand command,CancellationToken cancellationToken)
         {
             var email = command.Email.Trim().ToLowerInvariant();
 
             var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
             if (user is null)
             {
-                return;
+                return false;
             }
 
             var rawToken = _tokenGenerator.Generate();
@@ -38,6 +38,7 @@ namespace Sumodh.Taskora.Application.Features.Auth.Commands.RequestPasswordReset
 
             await _userRepository.SaveChangesAsync(cancellationToken);
             await _passwordResetEmailSender.SendAsync(user.Name, user.Email, rawToken, cancellationToken);
+            return true;
         }
     }
 }

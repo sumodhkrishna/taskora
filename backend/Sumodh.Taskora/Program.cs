@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +11,9 @@ using Sumodh.Taskora.Application.Features.Auth.Commands.Logout;
 using Sumodh.Taskora.Application.Features.Auth.Commands.RefreshToken;
 using Sumodh.Taskora.Application.Features.Auth.Commands.Register;
 using Sumodh.Taskora.Application.Features.Auth.Commands.RequestPasswordReset;
+using Sumodh.Taskora.Application.Features.Auth.Commands.ResendEmailVerification;
 using Sumodh.Taskora.Application.Features.Auth.Commands.ResetPassword;
+using Sumodh.Taskora.Application.Features.Auth.Commands.VerifyEmail;
 using Sumodh.Taskora.Application.Features.Todos.Commands;
 using Sumodh.Taskora.Application.Features.Todos.Queries;
 using Sumodh.Taskora.Application.Features.Users.Queries.GetById;
@@ -103,15 +104,19 @@ namespace Sumodh.Taskora
             builder.Services.AddAuthorization();
             builder.Services.AddHttpContextAccessor();
 
+            builder.Services.AddSingleton<IDevelopmentEmailPreviewStore, DevelopmentEmailPreviewStore>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
             builder.Services.AddScoped<IJWTTokenGenerator, JwtTokenGenerator>();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             builder.Services.AddScoped<ITodoRepository, TodoRepository>();
             builder.Services.AddScoped<IPasswordResetTokenGenerator, PasswordResetTokenGenerator>();
+            builder.Services.AddScoped<IEmailVerificationTokenGenerator, EmailVerificationTokenGenerator>();
+
             if (builder.Environment.IsDevelopment())
             {
                 builder.Services.AddScoped<IPasswordResetEmailSender, ConsolePasswordResetEmailSender>();
+                builder.Services.AddScoped<IEmailVerificationEmailSender, ConsoleEmailVerificationEmailSender>();
             }
             else
             {
@@ -119,14 +124,21 @@ namespace Sumodh.Taskora
                 {
                     client.BaseAddress = new Uri("https://api.sendgrid.com/v3/");
                 });
+                builder.Services.AddHttpClient<IEmailVerificationEmailSender, SendGridEmailVerificationEmailSender>(client =>
+                {
+                    client.BaseAddress = new Uri("https://api.sendgrid.com/v3/");
+                });
             }
+
             builder.Services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             builder.Services.AddScoped<RefreshTokenCommandHandler>();
             builder.Services.AddScoped<LogoutCommandHandler>();
             builder.Services.AddScoped<RequestPasswordResetCommandHandler>();
+            builder.Services.AddScoped<ResendEmailVerificationCommandHandler>();
             builder.Services.AddScoped<ResetPasswordCommandHandler>();
+            builder.Services.AddScoped<VerifyEmailCommandHandler>();
             builder.Services.AddScoped<CreateTodoCommandHandler>();
             builder.Services.AddScoped<RegisterCommandHandler>();
             builder.Services.AddScoped<GetUserByIdQueryHandler>();

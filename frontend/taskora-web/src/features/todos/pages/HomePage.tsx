@@ -43,6 +43,14 @@ function getPriorityLabel(priority: number | string): string {
   return "Unknown";
 }
 
+function getPriorityBadgeClass(priority: number | string): string {
+  const normalized = Number(priority);
+  if (normalized === 1) return styles.priorityLow;
+  if (normalized === 2) return styles.priorityMedium;
+  if (normalized === 3) return styles.priorityHigh;
+  return styles.priorityUnknown;
+}
+
 function mapStatusFilterToApi(status: TodoStatusFilter): string | undefined {
   if (status === "all") return undefined;
   if (status === "pending") return "Pending";
@@ -461,7 +469,11 @@ export function HomePage() {
                         <div>
                           <h3 className={styles.todoTitle}>{todo.title}</h3>
                           <div className={styles.metaRow}>
-                            <span className={styles.priorityBadge}>
+                            <span
+                              className={`${styles.priorityBadge} ${getPriorityBadgeClass(
+                                todo.priority
+                              )}`}
+                            >
                               {getPriorityLabel(todo.priority)}
                             </span>
                             <span className={styles.metaText}>

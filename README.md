@@ -8,6 +8,7 @@ The app includes:
 - a React frontend
 - JWT-based authentication
 - refresh token support
+- email verification flow
 - password reset flow
 - todo creation, editing, completion, reopening, and deletion
 
@@ -47,6 +48,7 @@ frontend/
 ## Features implemented
 
 - User registration
+- Email verification before first login
 - User login
 - Access token and refresh token flow
 - Forgot password and reset password flow with SendGrid email delivery
@@ -141,11 +143,14 @@ Password reset email delivery is configured through the `SendGrid` section in [b
   "ApiKey": "YOUR_SENDGRID_API_KEY",
   "FromEmail": "verified-sender@example.com",
   "FromName": "Taskora",
-  "PasswordResetUrl": "http://localhost:5173/reset-password"
+  "PasswordResetUrl": "http://localhost:5173/reset-password",
+  "EmailVerificationUrl": "http://localhost:5173/verify-email"
 }
 ```
 
 Those values can be overridden per environment, and the API key should be supplied through user secrets or environment variables outside local demo use.
+
+In development, password reset and email verification messages are also surfaced directly in the UI as preview cards so the flows can be tested without relying on external delivery.
 
 ## API notes
 
@@ -156,6 +161,8 @@ Todo endpoints are authenticated and scoped to the signed-in user. The todo list
 The user profile API exposes both `GET /api/users/me` and `GET /api/users/{id}`. The `id` route is restricted so authenticated users can only fetch their own profile data.
 
 Password reset requests now send a reset email through SendGrid instead of returning the raw token in the API response. The email includes both a clickable reset link and the token for manual entry.
+
+Newly registered users must verify their email before they can sign in. Verification emails and resend flows use the same delivery configuration, and development mode shows the generated email details directly in the frontend.
 
 During development, OpenAPI is enabled, so the API can be explored through Swagger at:
 
@@ -198,8 +205,8 @@ On the frontend, code is grouped by feature instead of by file type. That approa
 
 - SQLite keeps setup simple while still demonstrating a real persistence layer. For this use case, it stays lightweight while still covering realistic persistence concerns.
 - The product scope is centered on authentication and personal task management rather than collaboration features, teams, labels, notifications, or file attachments.
-- The current password reset flow sends email through SendGrid, but it still stops short of a fuller production workflow such as delivery retries, queueing, templates, or bounce monitoring.
-- Password reset delivery depends on a configured SendGrid sender and a valid frontend reset URL. In production, both should be environment-specific and managed as secrets.
+- The current email verification and password reset flows send email through SendGrid, but they still stop short of a fuller production workflow such as delivery retries, queueing, templates, or bounce monitoring.
+- Email delivery depends on a configured SendGrid sender and valid frontend verification/reset URLs. In production, those settings should be environment-specific and managed as secrets.
 - Authentication uses JWTs plus refresh tokens, which is more realistic than a single token approach, but it also adds extra complexity. That trade-off is reasonable because session handling is usually important in any app that includes login.
 - Rate limiting, health checks, exception handling, and request validation are included because they add strong MVP value without much overhead. They are not exhaustive security or operations features, but they move the project in a more production-minded direction.
 - The current model assumes single-user task ownership, where users only manage their own todos.

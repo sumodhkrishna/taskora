@@ -1,4 +1,5 @@
 using Sumodh.Taskora.Application.Features.Auth.Commands.Login;
+using Sumodh.Taskora.Application.Features.Auth.Exceptions;
 using Sumodh.Taskora.Domain.Users;
 using Sumodh.Taskora.Test.TestDoubles;
 
@@ -9,9 +10,12 @@ public class LoginCommandHandlerTests
     [Fact]
     public async Task Handle_WithValidCredentials_ReturnsAuthResponse()
     {
+        var user = new User("Sumodh", "user@example.com", "stored-hash") { Id = 17 };
+        user.MarkEmailVerified(DateTime.UtcNow);
+
         var userRepository = new FakeUserRepository
         {
-            UserByEmailResult = new User("Sumodh", "user@example.com", "stored-hash") { Id = 17 }
+            UserByEmailResult = user
         };
         var passwordHasher = new StubPasswordHasher { VerifyResult = true };
         var jwtTokenGenerator = new StubJwtTokenGenerator { TokenToReturn = "access-token" };
@@ -65,9 +69,12 @@ public class LoginCommandHandlerTests
     [Fact]
     public async Task Handle_WhenPasswordIsInvalid_ThrowsUnauthorized()
     {
+        var user = new User("Sumodh", "user@example.com", "stored-hash");
+        user.MarkEmailVerified(DateTime.UtcNow);
+
         var userRepository = new FakeUserRepository
         {
-            UserByEmailResult = new User("Sumodh", "user@example.com", "stored-hash")
+            UserByEmailResult = user
         };
         var handler = new LoginCommandHandler(
             userRepository,
@@ -78,5 +85,23 @@ public class LoginCommandHandlerTests
 
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
             handler.Handle(new LoginCommand("user@example.com", "wrong-password"), CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Handle_WhenEmailIsNotVerified_ThrowsForbidden()
+    {
+        var userRepository = new FakeUserRepository
+        {
+            UserByEmailResult = new User("Sumodh", "user@example.com", "stored-hash")
+        };
+        var handler = new LoginCommandHandler(
+            userRepository,
+            new StubPasswordHasher { VerifyResult = true },
+            new StubJwtTokenGenerator(),
+            new StubRefreshTokenGenerator(),
+            new FakeRefreshTokenRepository());
+
+        await Assert.ThrowsAsync<EmailNotVerifiedException>(() =>
+            handler.Handle(new LoginCommand("user@example.com", "secret123"), CancellationToken.None));
     }
 }

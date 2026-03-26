@@ -230,3 +230,36 @@ internal sealed class StubPasswordResetEmailSender : IPasswordResetEmailSender
         return Task.CompletedTask;
     }
 }
+
+internal sealed class StubEmailVerificationTokenGenerator : IEmailVerificationTokenGenerator
+{
+    public string GenerateResult { get; set; } = "raw-verification-token";
+    public string HashResult { get; set; } = "hashed-verification-token";
+    public string? LastHashArgument { get; private set; }
+    public int GenerateCallCount { get; private set; }
+
+    public string Generate()
+    {
+        GenerateCallCount++;
+        return GenerateResult;
+    }
+
+    public string Hash(string token)
+    {
+        LastHashArgument = token;
+        return HashResult;
+    }
+}
+
+internal sealed class StubEmailVerificationEmailSender : IEmailVerificationEmailSender
+{
+    public (string Name, string Email, string VerificationToken)? LastSendArguments { get; private set; }
+    public int SendCallCount { get; private set; }
+
+    public Task SendAsync(string name, string email, string verificationToken, CancellationToken cancellationToken)
+    {
+        LastSendArguments = (name, email, verificationToken);
+        SendCallCount++;
+        return Task.CompletedTask;
+    }
+}

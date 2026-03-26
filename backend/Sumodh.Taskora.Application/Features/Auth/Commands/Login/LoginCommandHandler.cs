@@ -1,6 +1,7 @@
-﻿using Sumodh.Taskora.Application.Abstractions.Authentication;
+using Sumodh.Taskora.Application.Abstractions.Authentication;
 using Sumodh.Taskora.Application.Abstractions.Persistence;
 using Sumodh.Taskora.Application.Features.Auth.Dtos;
+using Sumodh.Taskora.Application.Features.Auth.Exceptions;
 
 namespace Sumodh.Taskora.Application.Features.Auth.Commands.Login
 {
@@ -28,6 +29,8 @@ namespace Sumodh.Taskora.Application.Features.Auth.Commands.Login
             var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
             if (user is null || !_passwordHasher.Verify(command.Password, user.PasswordHash))
                 throw new UnauthorizedAccessException("Invalid email or password.");
+            if (!user.IsEmailVerified)
+                throw new EmailNotVerifiedException();
 
             var accessToken = _jwtTokenGenerator.GenerateToken(user.Id, user.Email, user.Name);
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Sumodh.Taskora.Application.Features.Auth.Exceptions;
 using Sumodh.Taskora.Infrastructure;
 
 namespace Sumodh.Taskora.Test.Infrastructure;
@@ -8,6 +9,7 @@ public class GlobalExceptionHandlerTests
 {
     [Theory]
     [InlineData(typeof(UnauthorizedAccessException), StatusCodes.Status401Unauthorized, "Unauthorized", "nope")]
+    [InlineData(typeof(EmailNotVerifiedException), StatusCodes.Status403Forbidden, "Forbidden", "Please verify your email address before signing in.")]
     [InlineData(typeof(InvalidOperationException), StatusCodes.Status409Conflict, "Conflict", "duplicate")]
     [InlineData(typeof(ArgumentException), StatusCodes.Status400BadRequest, "Bad Request", "bad input")]
     [InlineData(typeof(InvalidDataException), StatusCodes.Status400BadRequest, "Bad Request", "bad file")]
@@ -20,7 +22,9 @@ public class GlobalExceptionHandlerTests
         var problemDetailsService = new FakeProblemDetailsService();
         var handler = new GlobalExceptionHandler(problemDetailsService);
         var httpContext = new DefaultHttpContext();
-        var exception = (Exception)Activator.CreateInstance(exceptionType, message)!;
+        var exception = exceptionType == typeof(EmailNotVerifiedException)
+            ? new EmailNotVerifiedException()
+            : (Exception)Activator.CreateInstance(exceptionType, message)!;
 
         var handled = await handler.TryHandleAsync(httpContext, exception, CancellationToken.None);
 

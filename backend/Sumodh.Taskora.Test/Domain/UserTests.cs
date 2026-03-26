@@ -19,6 +19,9 @@ public class UserTests
         Assert.InRange(user.CreatedAt, before, after);
         Assert.Empty(user.TodoItems);
         Assert.Empty(user.RefreshTokens);
+        Assert.Null(user.EmailVerifiedAtUtc);
+        Assert.Null(user.EmailVerificationTokenHash);
+        Assert.Null(user.EmailVerificationTokenExpiresAtUtc);
         Assert.Null(user.PasswordResetTokenHash);
         Assert.Null(user.PasswordResetTokenExpiresAtUtc);
         Assert.Null(user.PasswordResetRequestedAtUtc);
@@ -63,6 +66,70 @@ public class UserTests
         Assert.Equal(expiresAt, user.PasswordResetTokenExpiresAtUtc);
         Assert.NotNull(user.PasswordResetRequestedAtUtc);
         Assert.InRange(user.PasswordResetRequestedAtUtc!.Value, before, after);
+    }
+
+    [Fact]
+    public void SetEmailVerificationToken_WithValidValues_SetsVerificationFields()
+    {
+        var user = new User("Sumodh", "user@example.com", "hash");
+        var expiresAt = DateTime.UtcNow.AddHours(24);
+
+        user.SetEmailVerificationToken("verification-hash", expiresAt);
+
+        Assert.Equal("verification-hash", user.EmailVerificationTokenHash);
+        Assert.Equal(expiresAt, user.EmailVerificationTokenExpiresAtUtc);
+        Assert.False(user.IsEmailVerified);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void SetEmailVerificationToken_WithInvalidHash_Throws(string tokenHash)
+    {
+        var user = new User("Sumodh", "user@example.com", "hash");
+
+        var exception = Assert.Throws<ArgumentException>(() => user.SetEmailVerificationToken(tokenHash, DateTime.UtcNow.AddHours(24)));
+
+        Assert.Equal("tokenHash", exception.ParamName);
+    }
+
+    [Fact]
+    public void CanUseEmailVerificationToken_WhenAllConditionsMatch_ReturnsTrue()
+    {
+        var user = new User("Sumodh", "user@example.com", "hash");
+        var now = DateTime.UtcNow;
+        user.SetEmailVerificationToken("verification-hash", now.AddHours(24));
+
+        var result = user.CanUseEmailVerificationToken("verification-hash", now);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void CanUseEmailVerificationToken_WhenExpired_ReturnsFalse()
+    {
+        var user = new User("Sumodh", "user@example.com", "hash");
+        var now = DateTime.UtcNow;
+        user.SetEmailVerificationToken("verification-hash", now.AddMinutes(10));
+
+        var result = user.CanUseEmailVerificationToken("verification-hash", now.AddMinutes(11));
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void MarkEmailVerified_SetsVerifiedAtAndClearsVerificationToken()
+    {
+        var user = new User("Sumodh", "user@example.com", "hash");
+        var verifiedAt = DateTime.UtcNow;
+        user.SetEmailVerificationToken("verification-hash", verifiedAt.AddHours(24));
+
+        user.MarkEmailVerified(verifiedAt);
+
+        Assert.True(user.IsEmailVerified);
+        Assert.Equal(verifiedAt, user.EmailVerifiedAtUtc);
+        Assert.Null(user.EmailVerificationTokenHash);
+        Assert.Null(user.EmailVerificationTokenExpiresAtUtc);
     }
 
     [Theory]

@@ -37,7 +37,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 620px;
+  max-width: 500px;
   padding: 36px 32px;
   border-radius: 28px;
   background: var(--color-surface);
@@ -82,12 +82,6 @@
   gap: 18px;
 }
 
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-
 .field {
   display: flex;
   flex-direction: column;
@@ -109,14 +103,6 @@
   color: var(--color-text);
   outline: none;
   font-size: 0.96rem;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-}
-
-.input::placeholder {
-  color: var(--color-text-faint);
 }
 
 .input:focus {
@@ -143,37 +129,25 @@
   font-size: 0.92rem;
 }
 
-.registerButton {
-  margin-top: 8px;
+.primaryButton,
+.secondaryButton {
   height: 54px;
   border: none;
   border-radius: 16px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #6f8eb0 48%, var(--color-primary-accent) 100%);
-  color: #ffffff;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: var(--shadow-button);
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    opacity 0.18s ease;
 }
 
-.registerButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 18px 34px rgba(91, 127, 163, 0.3);
+.primaryButton {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #6f8eb0 48%, var(--color-primary-accent) 100%);
+  color: #ffffff;
 }
 
-.registerButton:active {
-  transform: translateY(0);
-}
-
-.registerButton:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: 0 14px 30px rgba(91, 127, 163, 0.16);
+.secondaryButton {
+  background: rgba(255, 255, 255, 0.42);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 .footer {
@@ -195,30 +169,4 @@
   color: var(--color-link);
   text-decoration: none;
   font-weight: 600;
-}
-
-.link:hover {
-  text-decoration: underline;
-}
-
-.secondaryFooter {
-  margin-top: 10px;
-  text-align: center;
-}
-
-@media (max-width: 640px) {
-  .card {
-    max-width: 460px;
-    padding: 28px 22px;
-    border-radius: 24px;
-  }
-
-  .title {
-    font-size: 1.7rem;
-  }
-
-  .row {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
 }

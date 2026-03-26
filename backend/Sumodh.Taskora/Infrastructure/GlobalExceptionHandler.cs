@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Sumodh.Taskora.Application.Features.Auth.Exceptions;
 
 namespace Sumodh.Taskora.Infrastructure;
 
@@ -17,6 +18,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         var (statusCode, title) = exception switch
         {
             UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
+            EmailNotVerifiedException => (StatusCodes.Status403Forbidden, "Forbidden"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),
             ArgumentException => (StatusCodes.Status400BadRequest, "Bad Request"),
             InvalidDataException => (StatusCodes.Status400BadRequest, "Bad Request"),

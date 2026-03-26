@@ -31,6 +31,13 @@ namespace Sumodh.Taskora.Infra.Persistance
                 .IsRequired();
             modelBuilder.Entity<User>().HasIndex(x => x.Email)
                 .IsUnique();
+            modelBuilder.Entity<User>().Property(x => x.IsEmailVerified)
+                .IsRequired()
+                .HasDefaultValue(false);
+            modelBuilder.Entity<User>().Property(x => x.EmailVerifiedAtUtc);
+            modelBuilder.Entity<User>().Property(x => x.EmailVerificationTokenHash)
+                .HasMaxLength(256);
+            modelBuilder.Entity<User>().Property(x => x.EmailVerificationTokenExpiresAtUtc);
             modelBuilder.Entity<User>().Property(x => x.PasswordResetTokenHash)
                 .HasMaxLength(256);
             modelBuilder.Entity<User>().Property(x => x.PasswordResetTokenExpiresAtUtc);

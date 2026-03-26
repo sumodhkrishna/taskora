@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { AxiosError } from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { register } from "../api/authApi";
 import styles from "./RegisterPage.module.css";
 
 export function RegisterPage() {
-  const navigate = useNavigate();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [registeredEmail, setRegisteredEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -43,16 +43,18 @@ export function RegisterPage() {
     }
 
     setErrorMessage("");
+    setSuccessMessage("");
     setIsSubmitting(true);
 
     try {
-      await register({
+      const response = await register({
         name: name.trim(),
         email: email.trim(),
         password,
       });
 
-      navigate("/");
+      setRegisteredEmail(response.email ?? email.trim());
+      setSuccessMessage(response.message);
     } catch (error: unknown) {
       const status = error instanceof AxiosError ? error.response?.status : undefined;
 
@@ -158,6 +160,10 @@ export function RegisterPage() {
             <div className={styles.errorMessage}>{errorMessage}</div>
           )}
 
+          {successMessage && (
+            <div className={styles.successMessage}>{successMessage}</div>
+          )}
+
           <button
             type="submit"
             className={styles.registerButton}
@@ -173,6 +179,14 @@ export function RegisterPage() {
             Sign in
           </Link>
         </div>
+
+        {registeredEmail && (
+          <div className={styles.secondaryFooter}>
+            <Link to={`/verify-email?email=${encodeURIComponent(registeredEmail)}`} className={styles.link}>
+              Verify this email now
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
