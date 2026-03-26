@@ -201,7 +201,37 @@ For a small app, this is a bit more structure than strictly necessary, but it ke
 
 On the frontend, code is grouped by feature instead of by file type. That approach is easier to maintain as auth and todo flows grow independently.
 
-## Trade-offs and assumptions
+## Why these decisions
+
+- The backend is split into API, application, domain, and infrastructure layers so HTTP concerns, business rules, and implementation details can evolve independently instead of being mixed inside controllers.
+- Controllers are intentionally thin so routing, status codes, and request binding stay in the API layer while use-case logic remains testable outside ASP.NET Core.
+- Request and response DTOs are separated from domain entities so the HTTP contract can stay stable even if persistence or domain internals change.
+- Command and query handlers make each use case explicit, which keeps auth, todo, and user flows easier to test and reason about than pushing that logic into controllers or repositories.
+- Domain entities hold core invariants such as required titles, valid priority values, and state transitions so correctness is enforced where data changes, not only at the API boundary.
+- EF Core was chosen to get real relational persistence, migrations, indexing, and query behavior without hand-rolling data access concerns.
+- SQLite was chosen as the default database because it keeps local setup simple while still demonstrating a real persisted data model and migration workflow.
+- Repositories isolate EF Core query details from the application layer so use cases depend on abstractions rather than persistence technology.
+- Migrations are applied on startup to reduce local setup friction and make the project runnable with fewer manual steps.
+- JWT access tokens plus refresh tokens were chosen because they fit a separate frontend/backend architecture better than cookie-only sessions and demonstrate more realistic session handling.
+- A current-user abstraction is used so handlers do not depend directly on `HttpContext`, which keeps user-scoped behavior easier to test.
+- Email verification and password reset are separated behind token generators and email sender interfaces so token creation, transport, and business flow are not tightly coupled.
+- Development uses console-backed email previews while production uses SendGrid-backed senders so the same flows are easy to test locally but still map cleanly to a deployed environment.
+- Rate limiting is applied around auth-sensitive endpoints because login, verification, password reset, and token refresh flows are the highest-value abuse targets in this app.
+- Global exception handling with `ProblemDetails` was added to keep error responses more consistent and to avoid duplicating exception-to-response mapping inside controllers.
+- Health checks and OpenAPI were included because even a small app benefits from basic operability and easier inspection during development.
+- The frontend is organized by feature so auth and todo behavior can grow independently without scattering related logic across generic folders.
+- A centralized Axios client handles bearer-token attachment and refresh-token retry logic in one place so auth behavior stays consistent across the frontend.
+
+## Assumptions
+
+- The product is a personal task manager, so every todo belongs to exactly one authenticated user and there are no shared lists, teams, or delegated ownership flows.
+- Email verification is required before first login, but the app assumes users have access to the mailbox they registered with and does not implement manual admin override flows.
+- Password reset and email verification depend on valid frontend URLs plus a configured sender. In development, those flows can be previewed without external delivery, but production assumes environment-specific email configuration is already in place.
+- The todo workload is expected to stay modest enough for SQLite to be a reasonable default for local and small-scale deployments.
+- Todo querying assumes a single-user list view with pagination and basic filters rather than advanced reporting, saved views, or cross-user search.
+- Authentication assumes a single frontend client using bearer tokens and refresh tokens, rather than multiple first-party apps with device/session management.
+
+## Trade-offs
 
 - SQLite keeps setup simple while still demonstrating a real persistence layer. For this use case, it stays lightweight while still covering realistic persistence concerns.
 - The product scope is centered on authentication and personal task management rather than collaboration features, teams, labels, notifications, or file attachments.
@@ -209,7 +239,6 @@ On the frontend, code is grouped by feature instead of by file type. That approa
 - Email delivery depends on a configured SendGrid sender and valid frontend verification/reset URLs. In production, those settings should be environment-specific and managed as secrets.
 - Authentication uses JWTs plus refresh tokens, which is more realistic than a single token approach, but it also adds extra complexity. That trade-off is reasonable because session handling is usually important in any app that includes login.
 - Rate limiting, health checks, exception handling, and request validation are included because they add strong MVP value without much overhead. They are not exhaustive security or operations features, but they move the project in a more production-minded direction.
-- The current model assumes single-user task ownership, where users only manage their own todos.
 
 ## Scalability thoughts
 
@@ -221,7 +250,7 @@ If the project needed to grow beyond its current scope, the next areas of focus 
 - adding structured logging and monitoring
 - introducing integration tests for key API flows
 - improving token revocation and session management
-- supporting email delivery for password reset and account verification
+- hardening email delivery for password reset and account verification with retries, templates, and delivery monitoring
 - expanding sorting and richer task organization for larger todo lists
 
 ## What I would build next
@@ -231,7 +260,7 @@ The next improvements to prioritize would be:
 - richer sorting and task organization beyond the current filter set
 - optimistic UI updates on the frontend
 - stronger form validation and user feedback states
-- email-backed password reset
+- richer session and account-security controls around refresh tokens and verification flows
 - containerized local setup
 - CI for test and lint validation
 - role-based or team-based expansion if the product direction called for shared workspaces
