@@ -50,17 +50,9 @@ export interface AuthResponseDto {
   email: string;
 }
 
-export interface DevelopmentEmailPreviewDto {
-  recipientEmail: string;
-  subject: string;
-  actionUrl: string;
-  token: string;
-}
-
 export interface EmailActionResponseDto {
   message: string;
   email?: string | null;
-  devEmailPreview?: DevelopmentEmailPreviewDto | null;
 }
 
 export interface MessageResponseDto {

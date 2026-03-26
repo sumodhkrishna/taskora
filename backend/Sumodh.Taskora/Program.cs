@@ -104,7 +104,6 @@ namespace Sumodh.Taskora
             builder.Services.AddAuthorization();
             builder.Services.AddHttpContextAccessor();
 
-            builder.Services.AddSingleton<IDevelopmentEmailPreviewStore, DevelopmentEmailPreviewStore>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
             builder.Services.AddScoped<IJWTTokenGenerator, JwtTokenGenerator>();

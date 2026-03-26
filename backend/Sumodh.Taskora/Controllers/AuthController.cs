@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Hosting;
 using Sumodh.Taskora.Api.Contracts.Auth.Login;
 using Sumodh.Taskora.Api.Contracts.Auth.Logout;
 using Sumodh.Taskora.Api.Contracts.Auth.RefreshToken;
@@ -34,16 +33,13 @@ namespace Sumodh.Taskora.Api.Controllers
         public async Task<ActionResult<EmailActionResponseDto>> Register(
             [FromBody] RegisterRequest request,
             [FromServices] RegisterCommandHandler handler,
-            [FromServices] IHostEnvironment environment,
-            [FromServices] IDevelopmentEmailPreviewStore previewStore,
             CancellationToken cancellationToken)
         {
             var user = await handler.Handle(new RegisterCommand(request.Name, request.Email, request.Password), cancellationToken);
             return Ok(new EmailActionResponseDto
             {
                 Message = "Account created. Please verify your email before signing in.",
-                Email = user.Email,
-                DevEmailPreview = GetDevelopmentPreview(environment, previewStore, "email-verification", user.Email)
+                Email = user.Email
             });
         }
 
@@ -80,18 +76,13 @@ namespace Sumodh.Taskora.Api.Controllers
         public async Task<ActionResult<EmailActionResponseDto>> ResendVerificationEmail(
             [FromBody] ResendEmailVerificationRequest request,
             [FromServices] ResendEmailVerificationCommandHandler handler,
-            [FromServices] IHostEnvironment environment,
-            [FromServices] IDevelopmentEmailPreviewStore previewStore,
             CancellationToken cancellationToken)
         {
-            var sent = await handler.Handle(new ResendEmailVerificationCommand(request.Email), cancellationToken);
+            await handler.Handle(new ResendEmailVerificationCommand(request.Email), cancellationToken);
             return Ok(new EmailActionResponseDto
             {
                 Message = "If the account exists and is not yet verified, a verification email has been sent.",
-                Email = request.Email.Trim(),
-                DevEmailPreview = sent
-                    ? GetDevelopmentPreview(environment, previewStore, "email-verification", request.Email)
-                    : null
+                Email = request.Email.Trim()
             });
         }
 
@@ -101,18 +92,13 @@ namespace Sumodh.Taskora.Api.Controllers
         public async Task<ActionResult<EmailActionResponseDto>> RequestPasswordReset(
             [FromBody] RequestPasswordResetRequest request,
             [FromServices] RequestPasswordResetCommandHandler handler,
-            [FromServices] IHostEnvironment environment,
-            [FromServices] IDevelopmentEmailPreviewStore previewStore,
             CancellationToken cancellationToken)
         {
-            var sent = await handler.Handle(new RequestPasswordResetCommand(request.Email), cancellationToken);
+            await handler.Handle(new RequestPasswordResetCommand(request.Email), cancellationToken);
             return Ok(new EmailActionResponseDto
             {
                 Message = "If the account exists, a password reset email has been sent.",
-                Email = request.Email.Trim(),
-                DevEmailPreview = sent
-                    ? GetDevelopmentPreview(environment, previewStore, "password-reset", request.Email)
-                    : null
+                Email = request.Email.Trim()
             });
         }
 
@@ -144,32 +130,6 @@ namespace Sumodh.Taskora.Api.Controllers
         {
             await handler.Handle(new LogoutCommand(request.RefreshToken),cancellationToken);
             return NoContent();
-        }
-
-        private static DevelopmentEmailPreviewDto? GetDevelopmentPreview(
-            IHostEnvironment environment,
-            IDevelopmentEmailPreviewStore previewStore,
-            string purpose,
-            string email)
-        {
-            if (!environment.IsDevelopment())
-            {
-                return null;
-            }
-
-            var preview = previewStore.GetLatest(purpose, email);
-            if (preview is null)
-            {
-                return null;
-            }
-
-            return new DevelopmentEmailPreviewDto
-            {
-                RecipientEmail = preview.RecipientEmail,
-                Subject = preview.Subject,
-                ActionUrl = preview.ActionUrl,
-                Token = preview.Token
-            };
         }
     }
 }

@@ -14,8 +14,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IPasswordHasher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IPasswordResetTokenGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Authentication\IRefreshTokenGenerator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Communication\DevelopmentEmailPreview.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Communication\IDevelopmentEmailPreviewStore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Communication\IEmailVerificationEmailSender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Communication\IPasswordResetEmailSender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\Identity\ICurrentUserService.cs" />
@@ -39,7 +37,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\VerifyEmail\VerifyEmailCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Commands\VerifyEmail\VerifyEmailCommandHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Dtos\AuthResponseDto.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Dtos\DevelopmentEmailPreviewDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Dtos\EmailActionResponseDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Dtos\MessageResponseDto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Auth\Exceptions\EmailNotVerifiedException.cs" />

@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { requestPasswordReset } from "../api/authApi";
-import type { DevelopmentEmailPreviewDto } from "../types/auth";
 import styles from "./ForgotPasswordPage.module.css";
 
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [devPreview, setDevPreview] = useState<DevelopmentEmailPreviewDto | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -22,7 +20,6 @@ export function ForgotPasswordPage() {
 
     setErrorMessage("");
     setSuccessMessage("");
-    setDevPreview(null);
     setIsSubmitting(true);
 
     try {
@@ -31,7 +28,6 @@ export function ForgotPasswordPage() {
       });
 
       setSuccessMessage(response.message);
-      setDevPreview(response.devEmailPreview ?? null);
     } catch (error) {
       console.error(error);
       setErrorMessage("Unable to process password reset request.");
@@ -77,20 +73,6 @@ export function ForgotPasswordPage() {
 
           {successMessage && (
             <div className={styles.successMessage}>{successMessage}</div>
-          )}
-
-          {devPreview && (
-            <div className={styles.previewCard}>
-              <div className={styles.previewTitle}>Development Email Preview</div>
-              <p className={styles.previewText}>To: {devPreview.recipientEmail}</p>
-              <p className={styles.previewText}>Subject: {devPreview.subject}</p>
-              <p className={styles.previewText}>
-                Token: <span className={styles.previewCode}>{devPreview.token}</span>
-              </p>
-              <a className={styles.previewLink} href={devPreview.actionUrl}>
-                Open reset link
-              </a>
-            </div>
           )}
 
           <button

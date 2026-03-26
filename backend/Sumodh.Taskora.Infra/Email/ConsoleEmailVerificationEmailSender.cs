@@ -7,14 +7,10 @@ namespace Sumodh.Taskora.Infra.Email
     public sealed class ConsoleEmailVerificationEmailSender : IEmailVerificationEmailSender
     {
         private readonly SendGridEmailOptions _options;
-        private readonly IDevelopmentEmailPreviewStore _previewStore;
 
-        public ConsoleEmailVerificationEmailSender(
-            IOptions<SendGridEmailOptions> options,
-            IDevelopmentEmailPreviewStore previewStore)
+        public ConsoleEmailVerificationEmailSender(IOptions<SendGridEmailOptions> options)
         {
             _options = options.Value;
-            _previewStore = previewStore;
         }
 
         public Task SendAsync(string name, string email, string verificationToken, CancellationToken cancellationToken)
@@ -23,14 +19,6 @@ namespace Sumodh.Taskora.Infra.Email
             {
                 ["email"] = email,
                 ["token"] = verificationToken
-            });
-
-            _previewStore.Save("email-verification", new DevelopmentEmailPreview
-            {
-                RecipientEmail = email,
-                Subject = "Verify your Taskora email",
-                ActionUrl = actionUrl,
-                Token = verificationToken
             });
 
             Console.WriteLine("=== Taskora Email Verification (Development Mock) ===");
