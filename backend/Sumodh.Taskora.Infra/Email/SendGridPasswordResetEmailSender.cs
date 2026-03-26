@@ -61,8 +61,8 @@ namespace Sumodh.Taskora.Infra.Email
                         type = "text/html",
                         value =
                             $"<p>Hi {System.Net.WebUtility.HtmlEncode(name)},</p>" +
-                            $"<p>Use the link below to reset your Taskora password:</p>" +
-                            $"<p><a href=\"{System.Net.WebUtility.HtmlEncode(resetUrl)}\">Reset your password</a></p>" +
+                            $"<p>Use the URL below to reset your Taskora password:</p>" +
+                            $"<p>{System.Net.WebUtility.HtmlEncode(resetUrl)}</p>" +
                             $"<p>If you prefer, you can also paste this reset token manually:</p>" +
                             $"<p><strong>{System.Net.WebUtility.HtmlEncode(resetToken)}</strong></p>" +
                             "<p>If you did not request a password reset, you can ignore this email.</p>"

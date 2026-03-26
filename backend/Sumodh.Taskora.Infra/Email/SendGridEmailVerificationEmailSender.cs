@@ -61,8 +61,8 @@ namespace Sumodh.Taskora.Infra.Email
                         type = "text/html",
                         value =
                             $"<p>Hi {System.Net.WebUtility.HtmlEncode(name)},</p>" +
-                            $"<p>Use the link below to verify your Taskora email:</p>" +
-                            $"<p><a href=\"{System.Net.WebUtility.HtmlEncode(actionUrl)}\">Verify your email</a></p>" +
+                            $"<p>Use the URL below to verify your Taskora email:</p>" +
+                            $"<p>{System.Net.WebUtility.HtmlEncode(actionUrl)}</p>" +
                             $"<p>If you prefer, you can also paste this verification token manually:</p>" +
                             $"<p><strong>{System.Net.WebUtility.HtmlEncode(verificationToken)}</strong></p>" +
                             "<p>If you did not create a Taskora account, you can ignore this email.</p>"

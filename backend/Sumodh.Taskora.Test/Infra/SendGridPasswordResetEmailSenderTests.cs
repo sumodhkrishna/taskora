@@ -40,6 +40,7 @@ public class SendGridPasswordResetEmailSenderTests
         Assert.Contains("localhost:5173", body);
         Assert.Contains("reset-password", body);
         Assert.Contains("token=reset-token-123", body);
+        Assert.DoesNotContain("<a href=", body);
     }
 
     private sealed class RecordingHttpMessageHandler : HttpMessageHandler

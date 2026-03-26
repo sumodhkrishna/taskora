@@ -40,6 +40,7 @@ public class SendGridEmailVerificationEmailSenderTests
         Assert.Contains("verify-token-123", body);
         Assert.Contains("verify-email", body);
         Assert.Contains("token=verify-token-123", body);
+        Assert.DoesNotContain("<a href=", body);
     }
 
     private sealed class RecordingHttpMessageHandler : HttpMessageHandler
