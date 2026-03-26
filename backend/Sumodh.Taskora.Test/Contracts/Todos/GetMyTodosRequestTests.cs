@@ -39,6 +39,68 @@ public class GetMyTodosRequestTests
         Assert.Empty(validationResults);
     }
 
+    [Fact]
+    public void Validate_WhenPriorityIsOutsideAllowedRange_ReturnsValidationError()
+    {
+        var request = new GetMyTodosRequest
+        {
+            Priority = 9,
+            Page = 1,
+            PageSize = 20
+        };
+
+        var validationResults = Validate(request);
+
+        Assert.Contains(validationResults, result =>
+            result.MemberNames.Contains(nameof(GetMyTodosRequest.Priority)));
+    }
+
+    [Fact]
+    public void Validate_WhenPageIsZero_ReturnsValidationError()
+    {
+        var request = new GetMyTodosRequest
+        {
+            Page = 0,
+            PageSize = 20
+        };
+
+        var validationResults = Validate(request);
+
+        Assert.Contains(validationResults, result =>
+            result.MemberNames.Contains(nameof(GetMyTodosRequest.Page)));
+    }
+
+    [Fact]
+    public void Validate_WhenPageSizeExceedsLimit_ReturnsValidationError()
+    {
+        var request = new GetMyTodosRequest
+        {
+            Page = 1,
+            PageSize = 101
+        };
+
+        var validationResults = Validate(request);
+
+        Assert.Contains(validationResults, result =>
+            result.MemberNames.Contains(nameof(GetMyTodosRequest.PageSize)));
+    }
+
+    [Fact]
+    public void Validate_WhenSearchExceedsMaxLength_ReturnsValidationError()
+    {
+        var request = new GetMyTodosRequest
+        {
+            Search = new string('a', 201),
+            Page = 1,
+            PageSize = 20
+        };
+
+        var validationResults = Validate(request);
+
+        Assert.Contains(validationResults, result =>
+            result.MemberNames.Contains(nameof(GetMyTodosRequest.Search)));
+    }
+
     private static List<ValidationResult> Validate(GetMyTodosRequest request)
     {
         var validationResults = new List<ValidationResult>();

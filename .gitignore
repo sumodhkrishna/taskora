@@ -1,8 +1,10 @@
 # Local workspace tooling
+.dotnet-cli/
 .dotnet_cli/
 .home/
 .nuget/
 .vs/
+.test-output/
 
 # Visual Studio
 *.user
