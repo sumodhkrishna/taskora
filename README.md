@@ -53,6 +53,9 @@ frontend/
 - Protected todo endpoints
 - Create, update, delete, complete, and reopen todos
 - Current-user scoped todo access
+- Todo list pagination, status filtering, priority filtering, search, and due-date filtering
+- Request validation on write operations and todo list query parameters
+- Authenticated user profile endpoints with self-only access by id
 - Health check endpoint
 - Global exception handling
 - Basic rate limiting around auth-sensitive operations
@@ -135,6 +138,10 @@ JWT settings are also configured there. The current secret is development-friend
 
 The backend applies EF Core migrations on startup, so the SQLite database file is created automatically when the API starts.
 
+Todo endpoints are authenticated and scoped to the signed-in user. The todo list endpoint supports pagination plus status, priority, search, and due-date filters, and the query contract rejects invalid filter values instead of silently accepting them.
+
+The user profile API exposes both `GET /api/users/me` and `GET /api/users/{id}`. The `id` route is restricted so authenticated users can only fetch their own profile data.
+
 During development, OpenAPI is enabled, so the API can be explored through Swagger at:
 
 ```text
@@ -150,6 +157,8 @@ https://localhost:7002/health
 ## Testing
 
 Backend tests are available in [backend/Sumodh.Taskora.Test](c:/Users/sumod/source/repos/Sumodh.Taskora/backend/Sumodh.Taskora.Test).
+
+The unit test suite covers core auth flows, todo command/query handlers, domain behavior, exception handling, todo list query normalization, query-contract validation, and user access-control branches.
 
 To run them:
 
@@ -176,7 +185,7 @@ On the frontend, code is grouped by feature instead of by file type. That approa
 - The product scope is centered on authentication and personal task management rather than collaboration features, teams, labels, notifications, or file attachments.
 - The current password reset flow is implemented as an application feature, but not as a full email delivery workflow.
 - Authentication uses JWTs plus refresh tokens, which is more realistic than a single token approach, but it also adds extra complexity. That trade-off is reasonable because session handling is usually important in any app that includes login.
-- Rate limiting, health checks, and exception handling are included because they add strong MVP value without much overhead. They are not exhaustive security or operations features, but they move the project in a more production-minded direction.
+- Rate limiting, health checks, exception handling, and request validation are included because they add strong MVP value without much overhead. They are not exhaustive security or operations features, but they move the project in a more production-minded direction.
 - The current model assumes single-user task ownership, where users only manage their own todos.
 
 ## Scalability thoughts
@@ -185,18 +194,18 @@ If the project needed to grow beyond its current scope, the next areas of focus 
 
 - moving secrets and environment settings out of appsettings into proper secret management
 - replacing SQLite with a production database such as PostgreSQL or SQL Server or even nosql
-- adding richer validation and request-level error contracts
+- expanding request-level error contracts and adding more standardized API documentation examples
 - adding structured logging and monitoring
 - introducing integration tests for key API flows
 - improving token revocation and session management
 - supporting email delivery for password reset and account verification
-- adding filtering, paging, and search for larger todo lists
+- expanding sorting and richer task organization for larger todo lists
 
 ## What I would build next
 
 The next improvements to prioritize would be:
 
-- due-date filtering, sorting, and status filters
+- richer sorting and task organization beyond the current filter set
 - optimistic UI updates on the frontend
 - stronger form validation and user feedback states
 - email-backed password reset

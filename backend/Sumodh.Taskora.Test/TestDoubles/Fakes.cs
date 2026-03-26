@@ -52,11 +52,14 @@ internal sealed class FakeTodoRepository : ITodoRepository
     public TodoItem? TodoByIdResult { get; set; }
     public TodoItem? TodoByIdForUserResult { get; set; }
     public List<TodoItem> TodosByUserIdResult { get; set; } = [];
+    public List<TodoItem> PagedTodosResult { get; set; } = [];
+    public int PagedTotalCountResult { get; set; }
     public TodoItem? AddedTodo { get; private set; }
     public TodoItem? RemovedTodo { get; private set; }
     public int SaveChangesCallCount { get; private set; }
     public int? LastGetByUserIdArgument { get; private set; }
     public (int Id, int UserId)? LastGetByIdForUserArguments { get; private set; }
+    public (int UserId, bool? IsCompleted, int? Priority, string? Search, DateTime? DueBefore, int Page, int PageSize)? LastGetPagedForUserArguments { get; private set; }
 
     public Task AddAsync(TodoItem todoItem, CancellationToken cancellationToken)
     {
@@ -94,7 +97,8 @@ internal sealed class FakeTodoRepository : ITodoRepository
 
     public Task<(List<TodoItem> Items, int TotalCount)> GetPagedForUserAsync(int userId, bool? isCompleted, int? priority, string? search, DateTime? dueBefore, int page, int pageSize, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        LastGetPagedForUserArguments = (userId, isCompleted, priority, search, dueBefore, page, pageSize);
+        return Task.FromResult((PagedTodosResult, PagedTotalCountResult));
     }
 }
 

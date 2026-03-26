@@ -180,7 +180,7 @@ public class TodoHandlersTests
     }
 
     [Fact]
-    public async Task GetMyTodosHandle_ReturnsCurrentUsersTodos()
+    public async Task GetMyTodosHandle_ReturnsPagedTodosForCurrentUser()
     {
         var firstTodo = new TodoItem(5, "First", TodoPriority.Low, null, null);
         var secondTodo = new TodoItem(5, "Second", TodoPriority.High, "Details", null);
@@ -188,17 +188,62 @@ public class TodoHandlersTests
 
         var todoRepository = new FakeTodoRepository
         {
-            TodosByUserIdResult = [firstTodo, secondTodo]
+            PagedTodosResult = [firstTodo, secondTodo],
+            PagedTotalCountResult = 2
         };
         var handler = new GetMyTodosQueryHandler(todoRepository, new FakeCurrentUserService { UserId = 5 });
 
-        var result = await handler.Handle(new GetMyTodosQuery(), CancellationToken.None);
+        var result = await handler.Handle(
+            new GetMyTodosQuery(TodoStatusFilter.All, null, null, null, 1, 20),
+            CancellationToken.None);
 
-        Assert.Equal(5, todoRepository.LastGetByUserIdArgument);
-        Assert.Equal(2, result.Count);
-        Assert.Equal("First", result[0].Title);
-        Assert.Equal("Second", result[1].Title);
-        Assert.True(result[1].IsCompleted);
-        Assert.Equal((int)TodoPriority.High, result[1].Priority);
+        Assert.Equal((5, null, null, null, null, 1, 20), todoRepository.LastGetPagedForUserArguments);
+        Assert.Equal(2, result.Items.Count);
+        Assert.Equal("First", result.Items[0].Title);
+        Assert.Equal("Second", result.Items[1].Title);
+        Assert.True(result.Items[1].IsCompleted);
+        Assert.Equal((int)TodoPriority.High, result.Items[1].Priority);
+        Assert.Equal(2, result.TotalCount);
+        Assert.Equal(1, result.TotalPages);
+    }
+
+    [Fact]
+    public async Task GetMyTodosHandle_NormalizesFiltersAndPagingBeforeCallingRepository()
+    {
+        var dueBefore = new DateTime(2026, 4, 5, 0, 0, 0, DateTimeKind.Utc);
+        var todoRepository = new FakeTodoRepository
+        {
+            PagedTotalCountResult = 250
+        };
+        var handler = new GetMyTodosQueryHandler(todoRepository, new FakeCurrentUserService { UserId = 7 });
+
+        var result = await handler.Handle(
+            new GetMyTodosQuery(TodoStatusFilter.Completed, 99, "urgent", dueBefore, 0, 500),
+            CancellationToken.None);
+
+        Assert.Equal((7, true, null, "urgent", dueBefore, 1, 100), todoRepository.LastGetPagedForUserArguments);
+        Assert.Equal(1, result.Page);
+        Assert.Equal(100, result.PageSize);
+        Assert.Equal(250, result.TotalCount);
+        Assert.Equal(3, result.TotalPages);
+    }
+
+    [Fact]
+    public async Task GetMyTodosHandle_WhenNoResults_ReturnsEmptyPageWithZeroTotalPages()
+    {
+        var todoRepository = new FakeTodoRepository
+        {
+            PagedTodosResult = [],
+            PagedTotalCountResult = 0
+        };
+        var handler = new GetMyTodosQueryHandler(todoRepository, new FakeCurrentUserService { UserId = 5 });
+
+        var result = await handler.Handle(
+            new GetMyTodosQuery(TodoStatusFilter.Pending, 2, "docs", null, 2, 10),
+            CancellationToken.None);
+
+        Assert.Equal((5, false, 2, "docs", null, 2, 10), todoRepository.LastGetPagedForUserArguments);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalPages);
     }
 }
